@@ -2,94 +2,85 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Flashcards - True Kaiti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HSK Flashcards Kaiti</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 
     <style>
-        /* PHƯƠNG PHÁP ÉP FONT: KHAI BÁO FONT CHUẨN HỆ THỐNG TRƯỚC */
-        @font-face {
-            font-family: 'MyKaiti';
-            /* Gọi trực tiếp các bộ font Khải Thư gốc của iPhone/Android/PC */
-            src: local('Kaiti SC'), local('STKaiti'), local('Kaiti'), local('KaiTi_GB2312'), local('BiauKai'), local('Noto Serif SC');
-        }
-
         :root { 
-            --primary: #e63946; --secondary: #457b9d; --bg: #f1faee; 
+            --primary: #e63946; --secondary: #457b9d; --bg: #f8f9fa; 
             --success: #2a9d8f; --dark: #1d3557; --orange: #f4a261;
         }
 
         body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: var(--bg); display: flex; flex-direction: column; 
-            align-items: center; padding: 15px; margin: 0; min-height: 100vh;
+            align-items: center; padding: 10px; margin: 0; min-height: 100vh;
         }
 
         /* Tabs Menu */
         .tab-menu { 
             display: flex; width: 100%; max-width: 400px; 
-            background: #e0e0e0; border-radius: 15px; 
-            margin-bottom: 10px; padding: 5px; 
+            background: #eee; border-radius: 12px; 
+            margin-bottom: 10px; padding: 4px; 
         }
         .tab-menu button { 
-            flex: 1; border: none; padding: 10px 5px; 
-            border-radius: 10px; cursor: pointer; 
+            flex: 1; border: none; padding: 10px 2px; 
+            border-radius: 8px; cursor: pointer; 
             background: transparent; font-weight: bold; 
-            color: #666; transition: 0.3s; font-size: 11px;
+            color: #777; transition: 0.2s; font-size: 11px;
         }
-        .tab-menu button.active { background: white; color: var(--dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .tab-menu button.active { background: white; color: var(--dark); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        #stats-text { font-size: 14px; color: #888; margin-bottom: 10px; font-weight: bold; }
+        #stats-text { font-size: 13px; color: #999; margin-bottom: 8px; font-weight: bold; }
 
         .container { width: 100%; max-width: 400px; perspective: 1000px; }
-        .flashcard { 
-            width: 100%; height: 500px; position: relative; 
-            transform-style: preserve-3d; transition: transform 0.5s; 
-        }
+        .flashcard { width: 100%; height: 480px; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
         .flashcard.flipped { transform: rotateY(180deg); }
         
         .card-face { 
             position: absolute; width: 100%; height: 100%; 
             backface-visibility: hidden; display: flex; 
             flex-direction: column; justify-content: center; 
-            align-items: center; border-radius: 25px; 
-            background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
-            padding: 20px; text-align: center; box-sizing: border-box; 
-            border: 1px solid #eee; 
+            align-items: center; border-radius: 20px; 
+            background: white; box-shadow: 0 8px 15px rgba(0,0,0,0.08); 
+            padding: 15px; text-align: center; box-sizing: border-box; 
         }
-        .card-back { transform: rotateY(180deg); border-left: 5px solid var(--secondary); }
+        .card-back { transform: rotateY(180deg); border-top: 5px solid var(--secondary); }
 
-        /* ÉP HIỂN THỊ FONT KHẢI THƯ CHUẨN NHƯ HÌNH */
-        .hanzi-wrapper { display: flex; gap: 8px; justify-content: center; margin-bottom: 5px; }
+        /* ÉP FONT KHẢI THƯ CHUẨN NHƯ HÌNH GỬI */
+        .hanzi-wrapper { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 5px; }
         .hanzi-char { 
-            /* Ưu tiên tuyệt đối font MyKaiti đã khai báo ở trên */
-            font-family: 'MyKaiti', 'Kaiti SC', 'STKaiti', serif !important; 
+            /* Font Ma Shan Zheng và Long Cang có nét móc nhọn y hệt hình vẽ tay */
+            font-family: 'Ma Shan Zheng', 'Long Cang', cursive !important; 
             font-size: 100px; 
             color: var(--primary); 
-            font-weight: bold; /* Làm đậm để hiện rõ nét thanh đậm */
             cursor: pointer; 
-            line-height: 1.2;
+            line-height: 1.1;
+            /* Khử răng cưa cho nét mỏng */
             -webkit-font-smoothing: antialiased;
         }
-        .hanzi-char.active { background: #fff1f1; border-radius: 12px; color: var(--orange); }
+        .hanzi-char.active { color: var(--orange); text-decoration: underline; }
 
         #stroke-target { 
-            width: 190px; height: 190px; border: 1px dashed #ccc; 
-            border-radius: 15px; margin-top: 10px; background: #fff; 
-            display: flex; align-items: center; justify-content: center; 
+            width: 180px; height: 180px; border: 1px dashed #ddd; 
+            border-radius: 12px; margin-top: 10px; background: #fff; 
         }
 
-        .pinyin { font-size: 28px; color: #555; margin: 10px 0; font-style: italic; }
-        .meaning { font-size: 24px; font-weight: bold; color: var(--dark); }
-        .mastery-badge { font-size: 13px; color: var(--orange); margin-top: 5px; font-weight: bold; }
+        .pinyin { font-size: 26px; color: #666; margin: 10px 0; font-family: serif; }
+        .meaning { font-size: 22px; font-weight: bold; color: var(--dark); padding: 0 10px; }
 
-        /* Nút bấm */
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; width: 100%; max-width: 400px; }
+        /* Buttons */
+        .btn-group { display: flex; gap: 8px; margin-top: 12px; width: 100%; max-width: 400px; }
         button.action { 
-            flex: 1; padding: 12px; border-radius: 12px; border: none; 
-            color: white; cursor: pointer; font-weight: bold; 
-            transition: 0.2s; box-shadow: 0 4px 0px rgba(0,0,0,0.2);
+            flex: 1; padding: 14px; border-radius: 12px; border: none; 
+            color: white; cursor: pointer; font-weight: bold; font-size: 16px;
+            transition: 0.2s; box-shadow: 0 3px 0px rgba(0,0,0,0.15);
         }
         button.action:active { transform: translateY(2px); box-shadow: none; }
         .btn-blue { background: var(--secondary); }
@@ -97,12 +88,12 @@
         .btn-green { background: var(--success); }
         .btn-orange { background: var(--orange); }
 
-        .btn-reset-data { margin-top: 30px; background: none; border: 1px solid #ccc; color: #999; padding: 8px 20px; border-radius: 20px; font-size: 11px; cursor: pointer; }
+        #status { font-size: 10px; color: #bbb; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="status" style="font-size: 10px; color: #ccc;">Syncing...</div>
+    <div id="status">Đang kết nối dữ liệu...</div>
     
     <div class="tab-menu">
         <button id="tab-new" class="active" onclick="changeTab('new')">🆕 Mới</button>
@@ -116,14 +107,13 @@
         <div id="card" class="flashcard">
             <div class="card-face">
                 <div id="hanzi-wrapper" class="hanzi-wrapper"></div>
-                <div id="mastery-count" class="mastery-badge"></div>
                 <div id="stroke-target"></div>
-                <button class="action btn-blue" style="margin-top: 10px; height: auto; padding: 8px 15px; font-size: 12px;" onclick="flipCard()">Xem nghĩa</button>
+                <button class="action btn-blue" style="margin-top: 15px; font-size: 13px; padding: 8px;" onclick="flipCard()">Xem nghĩa & Pinyin</button>
             </div>
             <div class="card-face card-back" onclick="flipCard()">
                 <p class="pinyin" id="back-pinyin">...</p>
                 <p class="meaning" id="back-meaning">...</p>
-                <small style="color:#ccc;">(Chạm để quay lại)</small>
+                <small style="color:#ddd; margin-top: 20px;">(Chạm để quay lại mặt trước)</small>
             </div>
         </div>
     </div>
@@ -135,25 +125,27 @@
     </div>
 
     <div class="btn-group">
-        <button class="action btn-blue" style="flex: 0.3;" onclick="speak()">🔊</button>
+        <button class="action btn-blue" style="flex: 0.4;" onclick="speak()">🔊 Đọc</button>
         <button class="action btn-red" onclick="handleMark(false)">❌ Quên</button>
         <button class="action btn-green" onclick="handleMark(true)">✅ Thuộc</button>
     </div>
 
-    <button class="btn-reset-data" onclick="resetAllProgress()">🔄 Reset tiến độ</button>
-
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6GBYQFrAk-jixOHQz3MyoWWpyT6cB3fCBTb29iaTX4kl1YMbj5VI6M96FTNi64yEI/exec';
         let originalWords = [], displayList = [], currentIndex = 0, currentTab = 'new', writer = null;
-        let db = JSON.parse(localStorage.getItem('hsk_mastery_final') || "{}");
+        let db = JSON.parse(localStorage.getItem('hsk_data_v4') || "{}");
 
         async function loadData() {
             try {
                 const response = await fetch(SCRIPT_URL);
+                if (!response.ok) throw new Error();
                 originalWords = await response.json();
+                document.getElementById('status').innerText = "Dữ liệu: Đã đồng bộ";
                 render();
-                document.getElementById('status').innerText = "V.2026.04 Online";
-            } catch (e) { document.getElementById('status').innerText = "Offline Mode"; }
+            } catch (e) { 
+                document.getElementById('status').innerText = "Lỗi tải dữ liệu. Đang thử lại...";
+                setTimeout(loadData, 3000);
+            }
         }
 
         function changeTab(tabName) {
@@ -167,6 +159,7 @@
             if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
             else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 1 && db[w.hanzi].count <= 2);
             else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 3);
+            
             currentIndex = 0;
             updateUI();
         }
@@ -176,21 +169,17 @@
             card.classList.remove('flipped');
             const wrapper = document.getElementById('hanzi-wrapper');
             const stats = document.getElementById('stats-text');
-            const mBadge = document.getElementById('mastery-count');
             wrapper.innerHTML = ""; 
 
             if (displayList.length === 0) {
-                wrapper.innerHTML = "<div style='color:#ccc'>Trống</div>";
+                wrapper.innerHTML = "<div style='color:#ccc; font-size: 16px;'>Danh sách này đang trống</div>";
                 stats.innerText = "0 / 0";
-                mBadge.innerText = "";
                 document.getElementById('stroke-target').innerHTML = "";
                 return;
             }
 
             const w = displayList[currentIndex];
             stats.innerText = `Thẻ ${currentIndex + 1} / ${displayList.length}`;
-            const count = (db[w.hanzi] && db[w.hanzi].count) ? db[w.hanzi].count : 0;
-            mBadge.innerText = count > 0 ? `Tiến độ: ${"⭐".repeat(count)}` : "Từ mới";
 
             const chars = w.hanzi.trim().split("");
             chars.forEach((char, index) => {
@@ -215,8 +204,9 @@
         function drawChar(char) {
             document.getElementById('stroke-target').innerHTML = ""; 
             writer = HanziWriter.create('stroke-target', char, {
-                width: 180, height: 180, padding: 5,
-                strokeAnimationSpeed: 1.5, delayBetweenStrokes: 200, strokeColor: '#e63946'
+                width: 170, height: 170, padding: 5,
+                strokeAnimationSpeed: 1.5, delayBetweenStrokes: 200, strokeColor: '#e63946',
+                outlineColor: '#eee'
             });
             writer.animateCharacter();
             document.getElementById('stroke-target').onclick = (e) => { e.stopPropagation(); writer.animateCharacter(); };
@@ -229,13 +219,22 @@
             if (displayList.length === 0) return;
             const word = displayList[currentIndex].hanzi;
             if (!db[word]) db[word] = { count: 0 };
+            
             if (isCorrect) db[word].count = Math.min(db[word].count + 1, 3);
             else db[word].count = (db[word].count >= 3) ? 1 : 0;
-            localStorage.setItem('hsk_mastery_final', JSON.stringify(db));
-            setTimeout(render, 300);
+            
+            localStorage.setItem('hsk_data_v4', JSON.stringify(db));
+            setTimeout(render, 200);
         }
 
-        function speak() { if (displayList.length === 0) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg); }
+        function speak() { 
+            if (displayList.length === 0) return; 
+            window.speechSynthesis.cancel(); 
+            const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); 
+            msg.lang = 'zh-CN'; 
+            window.speechSynthesis.speak(msg); 
+        }
+
         function shuffleWords() {
             if (displayList.length <= 1) return;
             for (let i = displayList.length - 1; i > 0; i--) {
@@ -245,13 +244,7 @@
             currentIndex = 0;
             updateUI();
         }
-        function resetAllProgress() {
-            if (confirm("Reset toàn bộ tiến độ?")) {
-                localStorage.removeItem('hsk_mastery_final');
-                db = {};
-                render();
-            }
-        }
+
         window.onload = loadData;
     </script>
 </body>
