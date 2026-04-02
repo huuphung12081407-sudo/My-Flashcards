@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Flashcard Mastery - Real Kaiti</title>
+    <title>HSK Mastery - Perfect Kaiti</title>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 
@@ -61,19 +57,17 @@
         }
         .card-back { transform: rotateY(180deg); border-left: 5px solid var(--secondary); }
 
-        /* GIẢI PHÁP FONT CHỮ QUAN TRỌNG NHẤT */
+        /* FONT CHỮ HÁN CHUẨN KHẢI THƯ NHƯ HÌNH */
         .hanzi-wrapper { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
         .hanzi-char { 
-            /* Ép trình duyệt dùng font nghệ thuật tải về thay vì font máy */
-            font-family: 'Ma Shan Zheng', 'Zhi Mang Xing', 'STKaiti', 'Kaiti SC', serif !important; 
-            font-size: 95px; 
+            /* Ép dùng font Zhi Mang Xing cho nét móc cực bén */
+            font-family: 'Zhi+Mang+Xing', 'Ma Shan Zheng', "楷体", "STKaiti", serif !important; 
+            font-size: 105px; /* Tăng kích thước để thấy rõ nét móc */
             color: var(--primary); 
             cursor: pointer; 
             padding: 0 5px; 
             line-height: 1.1;
-            /* Khử răng cưa giúp nét thanh đậm hiện rõ hơn */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1); /* Tạo độ nổi nhẹ cho nét bút */
         }
         .hanzi-char.active { background: #fff1f1; color: var(--orange); box-shadow: inset 0 0 0 2px #ffcccc; }
 
@@ -167,13 +161,9 @@
         }
 
         function render() {
-            if (currentTab === 'new') {
-                displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
-            } else if (currentTab === 'learning') {
-                displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 1 && db[w.hanzi].count <= 2);
-            } else if (currentTab === 'mastered') {
-                displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 3);
-            }
+            if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
+            else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 1 && db[w.hanzi].count <= 2);
+            else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 3);
             currentIndex = 0;
             updateUI();
         }
@@ -196,7 +186,6 @@
 
             const w = displayList[currentIndex];
             stats.innerText = `Thẻ ${currentIndex + 1} / ${displayList.length}`;
-            
             const count = (db[w.hanzi] && db[w.hanzi].count) ? db[w.hanzi].count : 0;
             mBadge.innerText = count > 0 ? `Tiến độ: ${"⭐".repeat(count)}` : "Từ mới";
 
@@ -227,10 +216,7 @@
                 strokeAnimationSpeed: 1.5, delayBetweenStrokes: 200, strokeColor: '#e63946'
             });
             writer.animateCharacter();
-            document.getElementById('stroke-target').onclick = (e) => {
-                e.stopPropagation();
-                writer.animateCharacter();
-            };
+            document.getElementById('stroke-target').onclick = (e) => { e.stopPropagation(); writer.animateCharacter(); };
         }
 
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
