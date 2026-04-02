@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Flashcard Mastery</title>
+    <title>HSK Flashcard Mastery - Kaiti Font</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 
@@ -27,6 +27,7 @@
             align-items: center; padding: 15px; margin: 0; min-height: 100vh;
         }
 
+        /* Menu Tab */
         .tab-menu { 
             display: flex; width: 100%; max-width: 400px; 
             background: #e0e0e0; border-radius: 15px; 
@@ -60,16 +61,18 @@
         }
         .card-back { transform: rotateY(180deg); border-left: 5px solid var(--secondary); }
 
-        /* Font Chữ Hán Khải Thư */
-        .hanzi-wrapper { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+        /* PHẦN QUAN TRỌNG: ÉP FONT KHẢI THƯ */
+        .hanzi-wrapper { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
         .hanzi-char { 
-            font-family: 'Zhi Mang Xing', 'Ma Shan Zheng', "楷体", serif; 
+            /* Ưu tiên font Noto Serif SC cho chuẩn Khải Thư */
+            font-family: 'Noto Serif SC', 'Ma Shan Zheng', "楷体", "STKaiti", serif !important; 
+            font-weight: 700;
             font-size: 80px; 
             color: var(--primary); 
             cursor: pointer; 
             padding: 0 5px; 
             border-radius: 10px;
-            line-height: 1.2;
+            line-height: 1.1;
         }
         .hanzi-char.active { background: #fff1f1; color: var(--orange); box-shadow: inset 0 0 0 2px #ffcccc; }
 
@@ -81,7 +84,7 @@
 
         .pinyin { font-size: 28px; color: #555; margin: 10px 0; font-style: italic; }
         .meaning { font-size: 24px; font-weight: bold; color: var(--dark); }
-        .mastery-badge { font-size: 12px; color: var(--orange); margin-top: 5px; font-weight: bold; }
+        .mastery-badge { font-size: 13px; color: var(--orange); margin-top: 5px; font-weight: bold; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 15px; width: 100%; max-width: 400px; }
         button.action { 
@@ -139,7 +142,7 @@
         <button class="action btn-green" onclick="handleMark(true)">✅ Thuộc</button>
     </div>
 
-    <button class="btn-reset-data" onclick="resetAllProgress()">🔄 Đặt lại toàn bộ tiến độ</button>
+    <button class="btn-reset-data" onclick="resetAllProgress()">🔄 Đặt lại tiến độ học tập</button>
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6GBYQFrAk-jixOHQz3MyoWWpyT6cB3fCBTb29iaTX4kl1YMbj5VI6M96FTNi64yEI/exec';
@@ -238,21 +241,17 @@
             if (!db[word]) db[word] = { count: 0 };
 
             if (isCorrect) {
-                // Tăng lên tối đa là 3 (Đã thuộc)
                 db[word].count = Math.min(db[word].count + 1, 3);
             } else {
-                // Nếu bấm Quên, reset về 1 (Đang học)
+                // Logic phạt: Trả về 1 (Đang học)
                 db[word].count = (db[word].count >= 3) ? 1 : 0;
             }
 
             localStorage.setItem('hsk_mastery_v2', JSON.stringify(db));
-            
-            // Hiệu ứng chuyển thẻ mượt
             setTimeout(render, 300);
         }
 
         function speak() { if (displayList.length === 0) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg); }
-        
         function shuffleWords() {
             if (displayList.length <= 1) return;
             for (let i = displayList.length - 1; i > 0; i--) {
@@ -262,7 +261,6 @@
             currentIndex = 0;
             updateUI();
         }
-
         function resetAllProgress() {
             if (confirm("Xóa toàn bộ tiến độ học tập?")) {
                 localStorage.removeItem('hsk_mastery_v2');
@@ -270,7 +268,6 @@
                 render();
             }
         }
-
         window.onload = loadData;
     </script>
 </body>
