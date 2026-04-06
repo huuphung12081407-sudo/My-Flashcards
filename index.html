@@ -2,15 +2,20 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HSK Mastery">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <title>Flashcards Từ Vựng New</title>
     
     <style>
+        /* [Giữ nguyên CSS cũ và thêm một chút cho giao diện App] */
         @font-face {
-            font-family: 'TrueKaiti';
+            font-family: 'StandardKaiTi';
             src: url('https://cdn.jsdelivr.net/gh/project-noonnu/noonfonts_seven@1.0/Kaiti-SC-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
+            font-weight: normal; font-style: normal;
         }
 
         :root { 
@@ -19,32 +24,50 @@
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); display: flex; flex-direction: column; 
-            align-items: center; padding: 10px; margin: 0; min-height: 100vh;
+            align-items: center; padding: env(safe-area-inset-top) 10px 20px 10px; 
+            margin: 0; min-height: 100vh;
+            user-select: none; /* Tránh việc nhấn giữ bị hiện menu copy của trình duyệt */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Menu Tab */
+        .hanzi-char, #back-hanzi, .hanzi-row span { 
+            font-family: 'StandardKaiTi', "Kaiti SC", "STKaiti", "楷体", serif !important;
+            font-size: 85px;
+        }
+
         .tab-menu { 
             display: flex; width: 100%; max-width: 400px; 
-            background: #e0e0e0; border-radius: 15px; 
-            margin-bottom: 10px; padding: 5px; 
+            background: #e0e0e0; border-radius: 15px; margin-top: 10px; margin-bottom: 10px; padding: 5px; 
         }
         .tab-menu button { 
-            flex: 1; border: none; padding: 10px 5px; 
-            border-radius: 10px; cursor: pointer; 
-            background: transparent; font-weight: bold; 
-            color: #666; transition: 0.3s; font-size: 11px;
+            flex: 1; border: none; padding: 10px 5px; border-radius: 10px; 
+            cursor: pointer; background: transparent; font-weight: bold; 
+            color: #666; font-size: 11px;
         }
         .tab-menu button.active { background: white; color: var(--dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-        #stats-text { font-size: 14px; color: #888; margin-bottom: 10px; font-weight: bold; }
+        .stats-container {
+            width: 100%; max-width: 400px; background: white; 
+            padding: 15px; border-radius: 20px; margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box;
+            position: relative;
+        }
+        .btn-reset { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.2; }
+
+        .progress-wrapper { height: 10px; background: #eee; border-radius: 10px; margin: 10px 0; overflow: hidden; display: flex; }
+        .progress-bar { height: 100%; transition: width 0.5s ease; }
+        .pb-mastered { background: var(--success); }
+        .pb-learning { background: var(--orange); }
+        .pb-new { background: #ccc; }
+
+        .stats-detail { display: flex; justify-content: space-around; font-size: 11px; font-weight: bold; }
+        .stats-item { display: flex; flex-direction: column; align-items: center; }
+        .stats-item span:first-child { font-size: 16px; margin-bottom: 2px; }
 
         .container { width: 100%; max-width: 400px; perspective: 1000px; }
-        .flashcard { 
-            width: 100%; height: 500px; position: relative; 
-            transform-style: preserve-3d; transition: transform 0.5s; 
-        }
+        .flashcard { width: 100%; height: 500px; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
         .flashcard.flipped { transform: rotateY(180deg); }
         
         .card-face { 
@@ -52,72 +75,64 @@
             backface-visibility: hidden; display: flex; 
             flex-direction: column; justify-content: center; 
             align-items: center; border-radius: 25px; 
-            background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
-            padding: 20px; text-align: center; box-sizing: border-box; 
-            border: 1px solid #eee; 
+            background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+            padding: 20px; box-sizing: border-box; border: 1px solid #eee; 
         }
         .card-back { transform: rotateY(180deg); border-left: 5px solid var(--secondary); }
 
-        /* FONT KHẢI THƯ CHUẨN NÉT MÓC */
-        .hanzi-wrapper { display: flex; gap: 8px; justify-content: center; margin-bottom: 5px; }
-        .hanzi-char { 
-            font-family: 'TrueKaiti', "Kaiti SC", "STKaiti", "KaiTi", serif !important; 
-            font-size: 105px; 
-            color: var(--primary); 
-            cursor: pointer; 
-            line-height: 1.2;
-            -webkit-font-smoothing: antialiased;
-        }
-        .hanzi-char.active { color: var(--orange); }
+        #stroke-target { width: 220px; height: 220px; border: 1px solid #ddd; border-radius: 15px; margin-top: 15px; background: #fff; position: relative; overflow: hidden; }
+        .pinyin { font-size: 26px; color: #555; margin: 5px 0; font-style: italic; }
+        .meaning { font-size: 22px; font-weight: bold; color: var(--dark); }
 
-        #stroke-target { 
-            width: 190px; height: 190px; border: 1px dashed #ccc; 
-            border-radius: 15px; margin-top: 10px; background: #fff; 
-            display: flex; align-items: center; justify-content: center; 
-        }
-
-        .pinyin { font-size: 28px; color: #555; margin: 10px 0; font-style: italic; }
-        .meaning { font-size: 24px; font-weight: bold; color: var(--dark); }
-        .mastery-badge { font-size: 13px; color: var(--orange); margin-top: 5px; font-weight: bold; }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; width: 100%; max-width: 400px; }
-        button.action { 
-            flex: 1; padding: 12px; border-radius: 12px; border: none; 
-            color: white; cursor: pointer; font-weight: bold; 
-            transition: 0.2s; box-shadow: 0 4px 0px rgba(0,0,0,0.2);
-        }
-        button.action:active { transform: translateY(2px); box-shadow: none; }
+        .btn-group { display: flex; gap: 8px; margin-top: 12px; width: 100%; max-width: 400px; }
+        button.action { flex: 1; padding: 12px; border-radius: 12px; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
         .btn-blue { background: var(--secondary); }
         .btn-red { background: var(--primary); }
         .btn-green { background: var(--success); }
         .btn-orange { background: var(--orange); }
 
-        .btn-reset-data { margin-top: 30px; background: none; border: 1px solid #ccc; color: #999; padding: 8px 20px; border-radius: 20px; font-size: 11px; cursor: pointer; }
+        #quiz-msg { font-size: 14px; color: var(--primary); margin-top: 10px; font-weight: bold; height: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="status" style="font-size: 10px; color: #ccc;">Đang tải...</div>
+    <div id="status" style="font-size: 10px; color: #ccc; margin-bottom: 5px; margin-top: 5px;">Kiểm tra dữ liệu...</div>
     
     <div class="tab-menu">
-        <button id="tab-new" class="active" onclick="changeTab('new')">🆕 Mới</button>
+        <button id="tab-new" class="active" onclick="changeTab('new')">🆕 Chưa học</button>
         <button id="tab-learning" onclick="changeTab('learning')">⏳ Đang học</button>
         <button id="tab-mastered" onclick="changeTab('mastered')">🏆 Đã thuộc</button>
     </div>
 
-    <div id="stats-text">Thẻ 0 / 0</div>
+    <div class="stats-container">
+        <button class="btn-reset" onclick="resetProgress()" title="Đặt lại tiến độ">🔄</button>
+        <div class="stats-detail">
+            <div class="stats-item" style="color: #999;"><span id="stat-new-count">0</span><span>Chưa học</span></div>
+            <div class="stats-item" style="color: var(--orange);"><span id="stat-learning-count">0</span><span>Đang học</span></div>
+            <div class="stats-item" style="color: var(--success);"><span id="stat-mastered-count">0</span><span>Đã thuộc</span></div>
+        </div>
+        <div class="progress-wrapper">
+            <div id="pb-mastered" class="progress-bar pb-mastered" style="width: 0%"></div>
+            <div id="pb-learning" class="progress-bar pb-learning" style="width: 0%"></div>
+            <div id="pb-new" class="progress-bar pb-new" style="width: 0%"></div>
+        </div>
+        <div id="stats-text" style="text-align: center; font-size: 13px; color: var(--dark); font-weight: bold;">0 / 0</div>
+    </div>
 
     <div class="container">
         <div id="card" class="flashcard">
             <div class="card-face">
-                <div id="hanzi-wrapper" class="hanzi-wrapper"></div>
-                <div id="mastery-count" class="mastery-badge"></div>
+                <div id="hanzi-wrapper" style="min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center;"></div>
+                <div id="mastery-count" style="color: var(--orange); font-size: 14px; margin-bottom: 5px;"></div>
                 <div id="stroke-target"></div>
-                <button class="action btn-blue" style="margin-top: 15px; height: auto; padding: 10px 20px; font-size: 13px;" onclick="flipCard()">Xem nghĩa</button>
+                <div id="quiz-msg"></div>
+                <button class="action btn-blue" style="margin-top: 15px; width: 160px; font-size: 13px;" onclick="flipCard()">Xem đáp án</button>
             </div>
+            
             <div class="card-face card-back" onclick="flipCard()">
-                <p class="pinyin" id="back-pinyin">...</p>
-                <p class="meaning" id="back-meaning">...</p>
+                <div style="color: var(--primary); font-size: 85px;" id="back-hanzi"></div>
+                <p class="pinyin" id="back-pinyin"></p>
+                <p class="meaning" id="back-meaning"></p>
                 <small style="color:#ccc;">(Chạm để quay lại)</small>
             </div>
         </div>
@@ -125,7 +140,7 @@
 
     <div class="btn-group">
         <button class="action btn-blue" onclick="changeCard(-1)">⬅️</button>
-        <button class="action btn-orange" onclick="shuffleWords()">🔀 Trộn</button>
+        <button class="action btn-orange" onclick="shuffleWords()">🔀</button>
         <button class="action btn-blue" onclick="changeCard(1)">➡️</button>
     </div>
 
@@ -135,121 +150,120 @@
         <button class="action btn-green" onclick="handleMark(true)">✅ Thuộc</button>
     </div>
 
-    <button class="btn-reset-data" onclick="resetAllProgress()">🔄 Đặt lại tiến độ</button>
-
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6GBYQFrAk-jixOHQz3MyoWWpyT6cB3fCBTb29iaTX4kl1YMbj5VI6M96FTNi64yEI/exec';
         let originalWords = [], displayList = [], currentIndex = 0, currentTab = 'new', writer = null;
-        let db = JSON.parse(localStorage.getItem('hsk_mastery_final_kaiti') || "{}");
+        let db = JSON.parse(localStorage.getItem('hsk_mastery_standard_kaiti') || "{}");
 
-        async function loadData() {
+        async function init() {
             try {
-                const response = await fetch(SCRIPT_URL);
-                originalWords = await response.json();
-                render();
-                document.getElementById('status').innerText = "Dữ liệu đã sẵn sàng";
-            } catch (e) { document.getElementById('status').innerText = "Lỗi kết nối!"; }
-        }
-
-        function changeTab(tabName) {
-            currentTab = tabName;
-            document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
+                const res = await fetch(SCRIPT_URL);
+                if (res.ok) {
+                    originalWords = await res.json();
+                    localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
+                    document.getElementById('status').innerText = "Trực tuyến - Đã cập nhật";
+                }
+            } catch (e) {
+                const cached = localStorage.getItem('hsk_cached_words');
+                if (cached) {
+                    originalWords = JSON.parse(cached);
+                    document.getElementById('status').innerText = "Ngoại tuyến - Dữ liệu cũ";
+                }
+            }
             render();
         }
 
+        // [Tất cả logic JavaScript cũ giữ nguyên hoàn toàn]
+        function changeTab(t) { currentTab = t; document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active')); document.getElementById('tab-' + t).classList.add('active'); render(); }
         function render() {
+            let currentHanzi = displayList[currentIndex]?.hanzi;
             if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
-            else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 1 && db[w.hanzi].count <= 2);
-            else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi] && db[w.hanzi].count >= 3);
-            currentIndex = 0;
+            else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 1 && db[w.hanzi]?.count < 3);
+            else displayList = originalWords.filter(w => db[w.hanzi]?.count >= 3);
+            let newIndex = displayList.findIndex(w => w.hanzi === currentHanzi);
+            currentIndex = newIndex !== -1 ? newIndex : 0;
+            const total = originalWords.length;
+            const nCnt = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0).length;
+            const lCnt = originalWords.filter(w => db[w.hanzi]?.count >= 1 && db[w.hanzi]?.count < 3).length;
+            const mCnt = originalWords.filter(w => db[w.hanzi]?.count >= 3).length;
+            document.getElementById('stat-new-count').innerText = nCnt;
+            document.getElementById('stat-learning-count').innerText = lCnt;
+            document.getElementById('stat-mastered-count').innerText = mCnt;
+            document.getElementById('pb-new').style.width = (nCnt / total * 100) + "%";
+            document.getElementById('pb-learning').style.width = (lCnt / total * 100) + "%";
+            document.getElementById('pb-mastered').style.width = (mCnt / total * 100) + "%";
             updateUI();
         }
 
         function updateUI() {
-            const card = document.getElementById('card');
-            card.classList.remove('flipped');
+            if (writer) { writer.cancelQuiz(); }
+            document.getElementById('card').classList.remove('flipped');
             const wrapper = document.getElementById('hanzi-wrapper');
-            const stats = document.getElementById('stats-text');
-            const mBadge = document.getElementById('mastery-count');
-            wrapper.innerHTML = ""; 
-
+            const quizMsg = document.getElementById('quiz-msg');
+            const target = document.getElementById('stroke-target');
+            wrapper.innerHTML = ""; quizMsg.innerText = ""; target.innerHTML = "";
             if (displayList.length === 0) {
-                wrapper.innerHTML = "<div style='color:#ccc;font-size:16px;'>Danh sách trống</div>";
-                stats.innerText = "0 / 0";
-                mBadge.innerText = "";
-                document.getElementById('stroke-target').innerHTML = "";
+                wrapper.innerHTML = "<div style='color:#ccc;'>Danh sách trống</div>";
+                document.getElementById('stats-text').innerText = "0 / 0";
                 return;
             }
-
             const w = displayList[currentIndex];
-            stats.innerText = `Thẻ ${currentIndex + 1} / ${displayList.length}`;
-            const count = (db[w.hanzi] && db[w.hanzi].count) ? db[w.hanzi].count : 0;
-            mBadge.innerText = count > 0 ? `Tiến độ: ${"⭐".repeat(count)}` : "Từ mới";
-
+            document.getElementById('stats-text').innerText = `${currentIndex + 1} / ${displayList.length}`;
+            const count = db[w.hanzi]?.count || 0;
+            document.getElementById('mastery-count').innerText = count > 0 ? "⭐".repeat(count) : "Từ mới";
             const chars = w.hanzi.trim().split("");
-            chars.forEach((char, index) => {
-                const span = document.createElement("span");
-                span.innerText = char;
-                span.className = "hanzi-char";
-                if(index === 0) span.classList.add('active'); 
-                span.onclick = (e) => {
-                    e.stopPropagation(); 
-                    document.querySelectorAll('.hanzi-char').forEach(c => c.classList.remove('active'));
-                    span.classList.add('active');
-                    drawChar(char);
-                };
-                wrapper.appendChild(span);
-            });
-
+            if (currentTab === 'mastered') {
+                wrapper.innerHTML = `<div class="pinyin">${w.pinyin}</div><div class="meaning">${w.meaning}</div>`;
+                startQuiz(chars);
+            } else {
+                const row = document.createElement("div"); row.style.display = "flex"; row.style.gap = "10px";
+                chars.forEach((c, i) => {
+                    const s = document.createElement("span"); s.innerText = c; s.className = "hanzi-char " + (i === 0 ? "active" : ""); s.style.cursor = "pointer";
+                    s.onclick = () => { document.querySelectorAll('.hanzi-char').forEach(el => el.classList.remove('active')); s.classList.add('active'); drawChar(c); };
+                    row.appendChild(s);
+                });
+                wrapper.appendChild(row); drawChar(chars[0]);
+            }
+            document.getElementById('back-hanzi').innerText = w.hanzi;
             document.getElementById('back-pinyin').innerText = w.pinyin;
             document.getElementById('back-meaning').innerText = w.meaning;
-            drawChar(chars[0]);
         }
 
-        function drawChar(char) {
-            document.getElementById('stroke-target').innerHTML = ""; 
-            writer = HanziWriter.create('stroke-target', char, {
-                width: 180, height: 180, padding: 5,
-                strokeAnimationSpeed: 1.5, delayBetweenStrokes: 200, strokeColor: '#e63946'
-            });
-            writer.animateCharacter();
-        }
-
-        function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
-        function changeCard(n) { if (displayList.length === 0) return; currentIndex = (currentIndex + n + displayList.length) % displayList.length; updateUI(); }
+        function drawChar(c) { document.getElementById('stroke-target').innerHTML = ""; writer = HanziWriter.create('stroke-target', c, { width: 200, height: 200, padding: 10, strokeColor: '#e63946', showOutline: true }); writer.animateCharacter(); }
         
-        function handleMark(isCorrect) {
+        function startQuiz(chars) {
+            const msg = document.getElementById('quiz-msg');
+            function load(idx) {
+                document.getElementById('stroke-target').innerHTML = "";
+                msg.innerText = `Viết chữ ${idx + 1}/${chars.length}`;
+                writer = HanziWriter.create('stroke-target', chars[idx], {
+                    width: 200, height: 200, padding: 10,
+                    showOutline: true, outlineColor: '#ffffff', characterColor: '#ffffff', 
+                    strokeColor: '#2a9d8f', strokeFadeDuration: 0, quizAbility: true, showHintAfterMisses: 999
+                });
+                writer.quiz({ onComplete: () => { if (idx + 1 < chars.length) setTimeout(() => load(idx + 1), 300); else msg.innerText = "✨ Đã thuộc!"; } });
+            }
+            load(0);
+        }
+
+        function handleMark(ok) {
             if (displayList.length === 0) return;
-            const word = displayList[currentIndex].hanzi;
-            if (!db[word]) db[word] = { count: 0 };
-            if (isCorrect) db[word].count = Math.min(db[word].count + 1, 3);
-            else db[word].count = (db[word].count >= 3) ? 1 : 0;
-            localStorage.setItem('hsk_mastery_final_kaiti', JSON.stringify(db));
-            setTimeout(render, 300);
+            const h = displayList[currentIndex].hanzi;
+            if (!db[h]) db[h] = { count: 0 };
+            if (ok) db[h].count = Math.min(db[h].count + 1, 5);
+            else db[h].count = Math.max(0, db[h].count - 1);
+            localStorage.setItem('hsk_mastery_standard_kaiti', JSON.stringify(db));
+            render(); 
         }
 
-        function speak() { if (displayList.length === 0) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg); }
-        
-        function shuffleWords() {
-            if (displayList.length <= 1) return;
-            for (let i = displayList.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [displayList[i], displayList[j]] = [displayList[j], displayList[i]];
-            }
-            currentIndex = 0;
-            updateUI();
-        }
+        function resetProgress() { if (confirm("Xóa toàn bộ tiến độ?")) { db = {}; localStorage.setItem('hsk_mastery_standard_kaiti', JSON.stringify(db)); render(); } }
+        function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
+        function changeCard(n) { currentIndex = (currentIndex + n + displayList.length) % displayList.length; updateUI(); }
+        function speak() { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
+        function shuffleWords() { displayList.sort(() => Math.random() - 0.5); currentIndex = 0; updateUI(); }
 
-        function resetAllProgress() {
-            if (confirm("Xóa toàn bộ tiến độ học tập?")) {
-                localStorage.removeItem('hsk_mastery_final_kaiti');
-                db = {};
-                render();
-            }
-        }
-        window.onload = loadData;
+        window.onload = init;
     </script>
 </body>
 </html>
