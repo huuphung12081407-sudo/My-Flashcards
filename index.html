@@ -6,31 +6,19 @@
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="HSK Mastery">
-    <meta name="apple-mobile-web-app-title" content="HSK Mastery">
-    <meta name="theme-color" content="#1d3557">
-    <meta name="msapplication-navbutton-color" content="#1d3557">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1d3557">
     
-    <link rel="manifest" href='data:application/manifest+json,{"name":"HSK Mastery App","short_name":"HSK","start_url":".","display":"standalone","background_color":"#f8f9fa","theme_color":"#1d3557","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3898/3898082.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="manifest" href='data:application/manifest+json,{"name":"HSK Mastery","short_name":"HSK","start_url":"/","display":"standalone","background_color":"#f8f9fa","theme_color":"#1d3557","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3898/3898082.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
-    <title>Flashcards Từ Vựng New</title>
+    <title>Từ vựng New</title>
     
     <style>
-        @font-face {
-            font-family: 'StandardKaiTi';
-            src: url('https://cdn.jsdelivr.net/gh/project-noonnu/noonfonts_seven@1.0/Kaiti-SC-Regular.woff') format('woff');
-            font-weight: normal; font-style: normal;
-        }
+        /* GIỮ NGUYÊN CSS CŨ */
+        @font-face { font-family: 'StandardKaiTi'; src: url('https://cdn.jsdelivr.net/gh/project-noonnu/noonfonts_seven@1.0/Kaiti-SC-Regular.woff') format('woff'); font-weight: normal; font-style: normal; }
         :root { --primary: #e63946; --secondary: #457b9d; --bg: #f8f9fa; --success: #2a9d8f; --dark: #1d3557; --orange: #f4a261; }
-        
         html, body { overscroll-behavior-y: none; margin: 0; padding: 0; background: var(--bg); min-height: 100vh; }
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: env(safe-area-inset-top) 10px 20px 10px; 
-            user-select: none; -webkit-tap-highlight-color: transparent; overflow-y: auto; 
-        }
+        body { font-family: -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top) 10px 20px 10px; user-select: none; -webkit-tap-highlight-color: transparent; overflow-y: auto; }
         .hanzi-char, #back-hanzi, .hanzi-row span { font-family: 'StandardKaiTi', "Kaiti SC", "STKaiti", "楷体", serif !important; font-size: 85px; }
         .tab-menu { display: flex; width: 100%; max-width: 400px; background: #e0e0e0; border-radius: 15px; margin-top: 5px; margin-bottom: 10px; padding: 5px; }
         .tab-menu button { flex: 1; border: none; padding: 10px 5px; border-radius: 10px; cursor: pointer; background: transparent; font-weight: bold; color: #666; font-size: 11px; }
@@ -119,7 +107,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <script>
-        // JS LOGIC GIỮ NGUYÊN
+        // --- 1. MẸO ĐÁNH LỪA CHROME ĐỂ HIỆN NÚT CÀI ĐẶT ---
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request)); });`;
+            const blob = new Blob([swCode], {type: 'text/javascript'});
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed', err));
+        }
+
+        // --- 2. LOGIC HSK (Giữ nguyên) ---
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6GBYQFrAk-jixOHQz3MyoWWpyT6cB3fCBTb29iaTX4kl1YMbj5VI6M96FTNi64yEI/exec';
         let originalWords = [], displayList = [], currentIndex = 0, currentTab = 'new', writer = null;
         let db = JSON.parse(localStorage.getItem('hsk_mastery_standard_kaiti') || "{}");
