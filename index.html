@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlbiIsCiAgIm5hbWUiOiAiVOG7qyBW4buxbmcgTmV3IiwKICAic2hvcnRfbmFtZSI6ICJU4buxIFbhu7tuZyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZjhmOWZhIiwKICAidGhlbWVfY29sb3IiOiAiI2U2Mzk0NiIKfQ==">
-
     <title>Từ Vựng New</title>
     
     <style>
@@ -19,154 +16,161 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        /* FIX: Chống vuốt xuống để reload trang và tối ưu trải nghiệm App */
         html, body { 
-            overscroll-behavior-y: contain; 
+            overscroll-behavior-y: none !important; 
             position: fixed; 
             width: 100%; 
             height: 100%; 
             overflow: hidden;
+            margin: 0; padding: 0;
+            background: #333;
         }
 
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            margin: 0; 
-            padding: env(safe-area-inset-top) 15px 30px 15px; 
-            background: var(--bg); 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             user-select: none;
-            overflow-y: auto; /* Chỉ cho phép cuộn bên trong nội dung */
         }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: var(--bg);
+            padding: env(safe-area-inset-top) 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #standard-area, #game-area { width: 100%; display: flex; flex-direction: column; }
         
-        .tab-menu { display: flex; width: 100%; max-width: 450px; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 10px 0; z-index: 100; }
+        .tab-menu { display: flex; width: 100%; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 8px 0; }
         .tab-menu button { flex: 1; border: none; padding: 10px 2px; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600; color: var(--gray); font-size: 11px; }
         .tab-menu button.active { background: white; color: var(--dark); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-        .stats-container { width: 100%; max-width: 400px; background: white; padding: 15px; border-radius: 18px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
-        .btn-reset { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.4; }
-        
-        .progress-wrapper { height: 8px; background: #eee; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
+        .stats-container { width: 100%; background: white; padding: 12px; border-radius: 18px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
+        .btn-reset { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0.3; }
+        .progress-wrapper { height: 7px; background: #eee; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
         .progress-bar { height: 100%; transition: width 0.6s ease; }
         .pb-mastered { background: var(--success); }
         .pb-learning { background: var(--orange); }
         .pb-new { background: #dee2e6; }
         
-        #standard-area { width: 100%; max-width: 400px; }
-        .container { width: 100%; height: 460px; perspective: 1000px; }
+        .container { width: 100%; height: 400px; perspective: 1000px; margin-bottom: 10px; }
         .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .flashcard.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; border-radius: 30px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 15px; border: 1px solid rgba(0,0,0,0.03); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; border-radius: 25px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 15px; border: 1px solid rgba(0,0,0,0.03); }
         .card-back { transform: rotateY(180deg); border-top: 6px solid var(--secondary); justify-content: center; }
 
-        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; min-height: 90px; }
-        .hanzi-char { font-family: var(--kaiti-font); font-size: 70px; cursor: pointer; color: #000; padding: 0 2px; }
+        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 85px; }
+        .hanzi-char { font-family: var(--kaiti-font); font-size: 65px; cursor: pointer; color: #000; padding: 0 2px; }
         .hanzi-char.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
 
-        .grid-container { width: 210px; height: 210px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
+        .grid-container { width: 190px; height: 190px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
         .grid-line-v, .grid-line-h { position: absolute; background: #f0f0f0; z-index: 1; }
         .grid-line-v { left: 50%; top: 0; width: 1px; height: 100%; }
         .grid-line-h { top: 50%; left: 0; width: 100%; height: 1px; }
         #stroke-target { position: relative; z-index: 2; width: 100%; height: 100%; }
 
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; width: 100%; max-width: 400px; }
+        .btn-group { display: flex; gap: 8px; margin-top: 5px; width: 100%; }
         button.action { flex: 1; padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
 
-        #game-area { width: 100%; max-width: 400px; height: 550px; display: none; flex-direction: column; align-items: center; position: relative; background: #0b0b0b; border-radius: 30px; overflow: hidden; border: 4px solid #333; }
-        #game-ui { position: absolute; top: 15px; width: 100%; padding: 0 20px; display: flex; justify-content: space-between; color: white; font-weight: bold; z-index: 10; pointer-events: none; font-size: 13px; }
-        #game-hearts { color: var(--primary); font-size: 16px; }
-        #game-current-hanzi { position: absolute; top: 85px; width: 100%; text-align: center; color: var(--primary); font-size: 80px; font-family: var(--kaiti-font); z-index: 10; pointer-events: none; }
-        
-        .target-node { 
-            position: absolute; padding: 10px 18px; background: white; border-radius: 25px; font-weight: bold; font-size: 13px; 
-            box-shadow: 0 0 15px rgba(255,255,255,0.2); cursor: pointer; max-width: 150px; white-space: normal; 
-            text-align: center; line-height: 1.2; word-break: break-word; z-index: 5;
-        }
+        #game-area { height: 550px; display: none; background: #0b0b0b; border-radius: 30px; overflow: hidden; position: relative; border: 4px solid #333; }
+        #game-current-hanzi { position: absolute; top: 90px; width: 100%; text-align: center; color: var(--primary); font-size: 80px; font-family: var(--kaiti-font); z-index: 5; pointer-events: none; }
+        #target-container { width: 100%; height: 100%; position: relative; }
         
         .speed-control { 
-            position: absolute; top: 45px; display: flex; gap: 15px; z-index: 20; 
-            background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; 
+            position: absolute; top: 45px; left: 50%; transform: translateX(-50%); 
+            display: flex; gap: 15px; z-index: 20; 
+            background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; 
         }
         .speed-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 10px; font-weight: bold; }
         .speed-btn.active { background: white; color: black; border-color: white; }
         
-        #game-start-btn { position: absolute; bottom: 25px; padding: 12px 40px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; z-index: 20; cursor: pointer; }
+        #game-start-btn { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); padding: 12px 40px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; z-index: 20; }
         .listening { animation: pulse 0.8s infinite; border: 2px solid white !important; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div id="status" style="font-size: 10px; color: #adb5bd; margin-bottom: 5px;">Syncing...</div>
-    
-    <div class="tab-menu">
-        <button id="tab-new" class="active" onclick="changeTab('new')">MỚI</button>
-        <button id="tab-learning" onclick="changeTab('learning')">ĐANG HỌC</button>
-        <button id="tab-mastered" onclick="changeTab('mastered')">ĐÃ THUỘC</button>
-        <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST GAME</button>
-    </div>
-
-    <div class="stats-container" id="stats-box">
-        <button class="btn-reset" onclick="resetProgress()">🔄</button>
-        <div style="display: flex; justify-content: space-around; margin-bottom: 8px;">
-            <div style="text-align:center"><span id="stat-new-count" style="font-weight:bold">0</span><br><small>Mới</small></div>
-            <div style="text-align:center; color:var(--orange)"><span id="stat-learning-count" style="font-weight:bold">0</span><br><small>Học</small></div>
-            <div style="text-align:center; color:var(--success)"><span id="stat-mastered-count" style="font-weight:bold">0</span><br><small>Thuộc</small></div>
+    <div class="app-container">
+        <div id="status" style="font-size: 9px; color: #adb5bd; margin-bottom: 3px;">Syncing...</div>
+        
+        <div class="tab-menu">
+            <button id="tab-new" class="active" onclick="changeTab('new')">MỚI</button>
+            <button id="tab-learning" onclick="changeTab('learning')">ĐANG HỌC</button>
+            <button id="tab-mastered" onclick="changeTab('mastered')">ĐÃ THUỘC</button>
+            <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST GAME</button>
         </div>
-        <div class="progress-wrapper">
-            <div id="pb-mastered" class="progress-bar pb-mastered"></div>
-            <div id="pb-learning" class="progress-bar pb-learning"></div>
-            <div id="pb-new" class="progress-bar pb-new"></div>
-        </div>
-    </div>
 
-    <div id="standard-area">
-        <div class="container">
-            <div id="card" class="flashcard">
-                <div class="card-face">
-                    <div id="mastery-count" style="margin-bottom: 5px;"></div>
-                    <div id="hanzi-wrapper"></div>
-                    <div class="grid-container">
-                        <div class="grid-line-v"></div><div class="grid-line-h"></div>
-                        <div id="stroke-target"></div>
-                    </div>
-                    <div id="quiz-msg" style="height:40px; font-size:12px; font-weight:bold; text-align:center; padding: 0 10px; margin-top: 5px;"></div>
-                    <button class="action" style="background:var(--secondary); width: auto; padding: 8px 20px; border-radius: 10px; margin-top: 5px;" onclick="flipCard()">ĐÁP ÁN</button>
-                </div>
-                <div class="card-face card-back" onclick="flipCard()">
-                    <div id="back-hanzi" style="font-size:75px; color:var(--primary); font-family:var(--kaiti-font)"></div>
-                    <p id="back-pinyin" style="font-size:24px; color:var(--secondary); margin:5px 0"></p>
-                    <p id="back-meaning" style="font-size:20px; font-weight:bold;"></p>
-                </div>
+        <div class="stats-container" id="stats-box">
+            <button class="btn-reset" onclick="resetProgress()">🔄</button>
+            <div style="display: flex; justify-content: space-around; font-size: 13px;">
+                <div style="text-align:center"><span id="stat-new-count" style="font-weight:bold">0</span><br><small>Mới</small></div>
+                <div style="text-align:center; color:var(--orange)"><span id="stat-learning-count" style="font-weight:bold">0</span><br><small>Học</small></div>
+                <div style="text-align:center; color:var(--success)"><span id="stat-mastered-count" style="font-weight:bold">0</span><br><small>Thuộc</small></div>
+            </div>
+            <div class="progress-wrapper">
+                <div id="pb-mastered" class="progress-bar pb-mastered"></div>
+                <div id="pb-learning" class="progress-bar pb-learning"></div>
+                <div id="pb-new" class="progress-bar pb-new"></div>
             </div>
         </div>
-        <div class="btn-group">
-            <button class="action" style="background:var(--secondary)" onclick="changeCard(-1)">⬅️</button>
-            <button class="action" style="background:var(--orange)" onclick="shuffleWords()">🔀</button>
-            <button class="action" style="background:var(--secondary)" onclick="changeCard(1)">➡️</button>
-        </div>
-        <div class="btn-group" style="margin-bottom: 20px;">
-            <button class="action" style="background:var(--secondary); flex:0.3" onclick="speak()">🔊</button>
-            <button id="mic-btn" class="action" style="background:#606c38; flex:0.3" onclick="startSpeechRecognition()">🎤</button>
-            <button class="action" style="background:var(--primary)" onclick="handleMark(false)">QUÊN</button>
-            <button class="action" style="background:var(--success)" onclick="handleMark(true)">THUỘC</button>
-        </div>
-    </div>
 
-    <div id="game-area">
-        <div id="game-ui">
-            <div id="game-score">Điểm: 0</div>
-            <div id="game-hearts">❤️❤️❤️</div>
+        <div id="standard-area">
+            <div class="container">
+                <div id="card" class="flashcard">
+                    <div class="card-face">
+                        <div id="mastery-count" style="font-size: 12px; margin-bottom: 2px;"></div>
+                        <div id="hanzi-wrapper"></div>
+                        <div class="grid-container">
+                            <div class="grid-line-v"></div><div class="grid-line-h"></div>
+                            <div id="stroke-target"></div>
+                        </div>
+                        <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0;"></div>
+                        <button class="action" style="background:var(--secondary); width: auto; padding: 8px 20px; border-radius: 10px;" onclick="flipCard()">ĐÁP ÁN</button>
+                    </div>
+                    <div class="card-face card-back" onclick="flipCard()">
+                        <div id="back-hanzi" style="font-size:75px; color:var(--primary); font-family:var(--kaiti-font)"></div>
+                        <p id="back-pinyin" style="font-size:24px; color:var(--secondary); margin:5px 0"></p>
+                        <p id="back-meaning" style="font-size:20px; font-weight:bold; text-align: center;"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="action" style="background:var(--secondary)" onclick="changeCard(-1)">⬅️</button>
+                <button class="action" style="background:var(--orange)" onclick="shuffleWords()">🔀</button>
+                <button class="action" style="background:var(--secondary)" onclick="changeCard(1)">➡️</button>
+            </div>
+            
+            <div id="main-controls" class="btn-group" style="margin-bottom: 10px;">
+                <button class="action" style="background:var(--secondary); flex:0.3" onclick="speak()">🔊</button>
+                <button id="mic-btn" class="action" style="background:#606c38; flex:0.3" onclick="startSpeechRecognition()">🎤</button>
+                <button class="action" style="background:var(--primary)" onclick="handleMark(false)">QUÊN</button>
+                <button class="action" style="background:var(--success)" onclick="handleMark(true)">THUỘC</button>
+            </div>
         </div>
-        <div class="speed-control">
-            <button class="speed-btn" id="s1" onclick="setSpeed(1)">x1</button>
-            <button class="speed-btn" id="s2" onclick="setSpeed(2)">x2</button>
-            <button class="speed-btn active" id="s3" onclick="setSpeed(3)">x3</button>
+
+        <div id="game-area">
+            <div id="game-ui" style="position: absolute; top: 15px; width:100%; padding:0 20px; display:flex; justify-content:space-between; color:white; font-size:13px; z-index:10;">
+                <div id="game-score">Điểm: 0</div>
+                <div id="game-hearts">❤️❤️❤️</div>
+            </div>
+            <div class="speed-control">
+                <button class="speed-btn" id="s1" onclick="setSpeed(1)">x1</button>
+                <button class="speed-btn" id="s2" onclick="setSpeed(2)">x2</button>
+                <button class="speed-btn active" id="s3" onclick="setSpeed(3)">x3</button>
+            </div>
+            <div id="game-current-hanzi">?</div>
+            <div id="target-container"></div>
+            <button id="game-start-btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
         </div>
-        <div id="game-current-hanzi">?</div>
-        <div id="target-container"></div>
-        <button id="game-start-btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
@@ -174,14 +178,9 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-lHjeH52ljO-f99E1XAdGuv6qRbCEHnO9mpu8V44T_rvbBQUBKS1Abs5LiM0uUX_s/exec';
         let originalWords = [], displayList = [], currentIndex = 0, currentTab = 'new';
         let currentSheetName = "Default", allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
-        
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
         let targets = [], spawnTimer = null, moveInterval = null, speedMultiplier = 1.9;
-
-        // Đăng ký Service Worker để chạy ngoại tuyến
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => console.log("Offline mode ready."));
-        }
+        let writerInstance = null;
 
         async function init() {
             const cached = localStorage.getItem('hsk_cached_words');
@@ -200,12 +199,13 @@
             currentTab = t; stopGame();
             document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + t).classList.add('active');
+            
             if (t === 'review') {
                 document.getElementById('standard-area').style.display = 'none';
                 document.getElementById('stats-box').style.display = 'none';
-                document.getElementById('game-area').style.display = 'flex';
+                document.getElementById('game-area').style.display = 'block';
             } else {
-                document.getElementById('standard-area').style.display = 'block';
+                document.getElementById('standard-area').style.display = 'flex';
                 document.getElementById('stats-box').style.display = 'block';
                 document.getElementById('game-area').style.display = 'none';
                 render();
@@ -217,7 +217,7 @@
             if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
             else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count > 0 && db[w.hanzi]?.count < 3);
             else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 3);
-            else if (currentTab === 'review') displayList = originalWords.filter(w => db[w.hanzi]?.count > 0);
+            
             currentIndex = 0; updateStats(); updateUI();
         }
 
@@ -236,27 +236,32 @@
         }
 
         function updateUI() {
-            if (currentTab === 'review') return;
             const w = displayList[currentIndex];
             const wrap = document.getElementById('hanzi-wrapper');
+            const targetDiv = document.getElementById('stroke-target');
             const msg = document.getElementById('quiz-msg');
-            msg.innerText = "";
-            wrap.innerHTML = ""; document.getElementById('stroke-target').innerHTML = "";
+            msg.innerText = ""; wrap.innerHTML = ""; targetDiv.innerHTML = "";
             document.getElementById('card').classList.remove('flipped');
             if (!w) { wrap.innerHTML = "Trống"; return; }
             const db = allProgress[currentSheetName] || {};
             const count = db[w.hanzi]?.count || 0;
             document.getElementById('mastery-count').innerText = count > 0 ? "⭐".repeat(count) : "🆕";
-            w.hanzi.split("").forEach((c, i) => {
-                const s = document.createElement("span"); s.innerText = c;
-                s.className = "hanzi-char " + (i === 0 ? "active" : "");
-                s.onclick = () => {
-                    document.querySelectorAll('.hanzi-char').forEach(e => e.classList.remove('active'));
-                    s.classList.add('active'); drawChar(c);
-                };
-                wrap.appendChild(s);
-            });
-            drawChar(w.hanzi[0]);
+
+            if (currentTab === 'mastered') {
+                wrap.innerHTML = `<div style="text-align:center"><small>Viết chữ:</small><br><b>${w.meaning}</b></div>`;
+                startQuizMode(w.hanzi, 0);
+            } else {
+                w.hanzi.split("").forEach((c, i) => {
+                    const s = document.createElement("span"); s.innerText = c;
+                    s.className = "hanzi-char " + (i === 0 ? "active" : "");
+                    s.onclick = () => {
+                        document.querySelectorAll('.hanzi-char').forEach(e => e.classList.remove('active'));
+                        s.classList.add('active'); drawChar(c);
+                    };
+                    wrap.appendChild(s);
+                });
+                drawChar(w.hanzi[0]);
+            }
             document.getElementById('back-hanzi').innerText = w.hanzi;
             document.getElementById('back-pinyin').innerText = w.pinyin;
             document.getElementById('back-meaning').innerText = w.meaning;
@@ -264,46 +269,31 @@
 
         function drawChar(c) {
             document.getElementById('stroke-target').innerHTML = "";
-            const db = allProgress[currentSheetName] || {};
-            const currentHanzi = displayList[currentIndex]?.hanzi;
-            const count = db[currentHanzi]?.count || 0;
-            
-            HanziWriter.create('stroke-target', c, { 
-                width: 200, 
-                height: 200, 
-                padding: 15, 
-                strokeColor: '#e63946', 
-                showOutline: (count >= 5) 
-            }).animateCharacter();
+            writerInstance = HanziWriter.create('stroke-target', c, { 
+                width: 190, height: 190, padding: 15, strokeColor: '#e63946', 
+                showOutline: true, showCharacter: false
+            });
+            writerInstance.animateCharacter();
         }
 
-        function startSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window)) return alert("Trình duyệt không hỗ trợ.");
-            const rec = new webkitSpeechRecognition();
-            rec.lang = 'zh-CN'; rec.interimResults = false;
-            const btn = document.getElementById('mic-btn');
-            const msg = document.getElementById('quiz-msg');
-            const target = displayList[currentIndex]?.hanzi;
-            if (!target) return;
-            rec.onstart = () => { btn.classList.add('listening'); msg.innerText = "Đang nghe..."; msg.style.color = "var(--secondary)"; };
-            rec.onresult = (e) => {
-                const result = e.results[0][0].transcript;
-                const scorePercent = Math.round(e.results[0][0].confidence * 100);
-                let comment = "", color = "";
-                if (result === target) {
-                    if (scorePercent >= 90) { comment = "Tuyệt vời! (>90%)"; color = "var(--success)"; }
-                    else if (scorePercent >= 70) { comment = "Khá tốt! (70-90%)"; color = "var(--secondary)"; }
-                    else if (scorePercent >= 50) { comment = "Cần cải thiện (50-70%)"; color = "var(--orange)"; }
-                    else { comment = "Gần đạt (<50%)"; color = "var(--primary)"; }
-                    msg.innerHTML = `✅ <span style="font-size:16px">${result}</span><br>${comment}`;
-                } else {
-                    msg.innerHTML = `❌ Bạn đọc là: <span style="font-size:16px">"${result}"</span><br>Chưa đúng.`;
-                    color = "var(--primary)";
+        function startQuizMode(fullHanzi, charIndex) {
+            const charToDraw = fullHanzi[charIndex];
+            document.getElementById('stroke-target').innerHTML = "";
+            writerInstance = HanziWriter.create('stroke-target', charToDraw, { 
+                width: 190, height: 190, padding: 15, 
+                showOutline: false, showCharacter: false,
+                strokeColor: '#e63946', drawingColor: '#2a9d8f'
+            });
+            writerInstance.quiz({
+                onComplete: () => { 
+                    if (charIndex < fullHanzi.length - 1) {
+                        setTimeout(() => startQuizMode(fullHanzi, charIndex + 1), 500);
+                    } else {
+                        document.getElementById('quiz-msg').innerText = "✅ Chính xác!"; 
+                        speak();
+                    }
                 }
-                msg.style.color = color;
-            };
-            rec.onend = () => btn.classList.remove('listening');
-            rec.start();
+            });
         }
 
         function setSpeed(v) {
@@ -312,14 +302,70 @@
             document.getElementById('s' + v).classList.add('active');
         }
 
+        // --- CẬP NHẬT LOGIC BLAST GAME THEO YÊU CẦU ---
         function startGame() {
-            render(); if (displayList.length < 2) return alert("Cần ít nhất 2 từ!");
+            const db = allProgress[currentSheetName] || {};
+            // Chỉ lấy từ Tab Đang học (1-2 sao) và Đã thuộc (>=3 sao)
+            const gamePool = originalWords.filter(w => db[w.hanzi]?.count > 0);
+            
+            if (gamePool.length < 2) return alert("Bạn cần có ít nhất 2 từ trong danh sách 'Đang học' hoặc 'Đã thuộc' để chơi!");
+            
             document.getElementById('game-start-btn').style.display = 'none';
-            document.getElementById('target-container').innerHTML = '';
             gameScore = 0; gameHearts = 3; gameActive = true;
-            updateGameUI(); spawnNewWord();
+            updateGameUI(); 
+            spawnNewWord(gamePool);
             moveInterval = setInterval(updateTargets, 20);
-            spawnTimer = setInterval(() => spawnTarget(), 2400); 
+            spawnTimer = setInterval(() => spawnTarget(gamePool), 2400); 
+        }
+
+        function spawnNewWord(pool) {
+            const db = allProgress[currentSheetName] || {};
+            // Tạo weighted pool: từ ít sao xuất hiện nhiều hơn
+            let weightedPool = [];
+            pool.forEach(word => {
+                const count = db[word.hanzi]?.count || 0;
+                const weight = Math.max(1, 6 - count); 
+                for(let i=0; i < weight; i++) weightedPool.push(word);
+            });
+
+            currentCorrectWord = weightedPool[Math.floor(Math.random() * weightedPool.length)];
+            document.getElementById('game-current-hanzi').innerText = currentCorrectWord.hanzi;
+            speakGame(currentCorrectWord.hanzi);
+            spawnTarget(pool, currentCorrectWord.meaning, true);
+        }
+
+        function spawnTarget(pool, txt = null, isCorrect = false) {
+            if (!gameActive) return;
+            const container = document.getElementById('target-container');
+            const node = document.createElement('div');
+            node.className = 'target-node';
+            
+            let word = isCorrect ? currentCorrectWord : pool[Math.floor(Math.random() * pool.length)];
+            node.innerText = txt || word.meaning;
+            node.style.cssText = `position:absolute; padding:10px 18px; background:white; border-radius:25px; font-weight:bold; font-size:13px; top:550px; left:${Math.random()*250}px; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:100;`;
+            
+            node.onclick = () => {
+                if (word.hanzi === currentCorrectWord.hanzi) { 
+                    gameScore += 10; node.remove(); spawnNewWord(pool); updateGameUI(); 
+                } else { 
+                    gameHearts--; updateGameUI(); 
+                    if(gameHearts <= 0) { stopGame(); alert("Game Over!"); } 
+                    node.style.background="red"; 
+                }
+            };
+            container.appendChild(node);
+            targets.push({ el: node, y: 550, speed: (1.5 + (gameScore/500)) * speedMultiplier, hanzi: word.hanzi });
+        }
+        // --- KẾT THÚC PHẦN CẬP NHẬT ---
+
+        function updateTargets() {
+            targets.forEach((t, i) => {
+                t.y -= t.speed; t.el.style.top = t.y + 'px';
+                if (t.y < -50) { 
+                    if (t.hanzi === currentCorrectWord.hanzi) { gameHearts--; updateGameUI(); if(gameHearts <= 0) stopGame(); }
+                    t.el.remove(); targets.splice(i, 1); 
+                }
+            });
         }
 
         function stopGame() {
@@ -329,77 +375,9 @@
             targets = [];
         }
 
-        function spawnNewWord() {
-            const db = allProgress[currentSheetName] || {};
-            let weightedPool = [];
-            displayList.forEach(w => {
-                const stars = db[w.hanzi]?.count || 0;
-                weightedPool.push(...Array(Math.max(1, 6 - stars)).fill(w));
-            });
-            currentCorrectWord = weightedPool[Math.floor(Math.random() * weightedPool.length)];
-            document.getElementById('game-current-hanzi').innerText = currentCorrectWord.hanzi;
-            window.speechSynthesis.cancel();
-            const m = new SpeechSynthesisUtterance(currentCorrectWord.hanzi);
-            m.lang = 'zh-CN'; m.rate = 0.9;
-            window.speechSynthesis.speak(m);
-            targets.forEach(t => { if (t.y < 360 || t.hanzi !== currentCorrectWord.hanzi) t.isSafe = true; });
-            spawnTarget(currentCorrectWord.meaning, true);
-        }
-
-        function spawnTarget(manualText = null, isCorrectOverride = false) {
-            if (!gameActive || targets.length > 5) return;
-            const container = document.getElementById('target-container');
-            const node = document.createElement('div');
-            node.className = 'target-node';
-            const isCorrect = isCorrectOverride || (Math.random() > 0.7);
-            let wordObj = isCorrect ? currentCorrectWord : originalWords[Math.floor(Math.random() * originalWords.length)];
-            node.innerText = manualText || wordObj.meaning;
-            node.style.left = Math.random() * (document.getElementById('game-area').clientWidth - 110) + 'px';
-            node.style.top = '550px';
-            const targetObj = { el: node, y: 550, speed: (1.4 + (gameScore / 550)) * speedMultiplier, hanzi: wordObj.hanzi, isSafe: false };
-            
-            node.onclick = () => {
-                if (targetObj.hanzi === currentCorrectWord.hanzi) {
-                    gameScore += 10;
-                    node.remove(); 
-                    spawnNewWord();
-                } else {
-                    gameHearts--;
-                    if (gameHearts <= 0) { stopGame(); alert(`GAME OVER! Điểm: ${gameScore}`); }
-                    updateGameUI();
-                    node.style.background = "var(--primary)"; node.style.color = "white";
-                    setTimeout(() => node.remove(), 100);
-                }
-            };
-            container.appendChild(node);
-            targets.push(targetObj);
-        }
-
-        function updateTargets() {
-            targets.forEach((t, i) => {
-                t.y -= t.speed; t.el.style.top = t.y + 'px';
-                if (t.y < -50) {
-                    if (t.hanzi === currentCorrectWord.hanzi && !t.isSafe && gameActive) {
-                        gameHearts--;
-                        if (gameHearts <= 0) { stopGame(); alert(`GAME OVER! Điểm: ${gameScore}`); }
-                        updateGameUI();
-                    }
-                    t.el.remove(); targets.splice(i, 1);
-                }
-            });
-        }
-
         function updateGameUI() {
             document.getElementById('game-score').innerText = `Điểm: ${gameScore}`;
             document.getElementById('game-hearts').innerText = "❤️".repeat(gameHearts) + "🖤".repeat(3 - gameHearts);
-        }
-
-        function resetProgress() {
-            if (confirm(`Xóa tiến độ "${currentSheetName}"?`)) {
-                delete allProgress[currentSheetName];
-                localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress));
-                render();
-            }
         }
 
         function handleMark(ok) {
@@ -415,7 +393,30 @@
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
         function changeCard(n) { currentIndex = (currentIndex + n + displayList.length) % displayList.length; updateUI(); }
         function speak() { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
+        function speakGame(h) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(h); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
         function shuffleWords() { displayList.sort(() => Math.random() - 0.5); currentIndex = 0; updateUI(); }
+        function resetProgress() { if(confirm("Xóa tiến độ?")) { delete allProgress[currentSheetName]; localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress)); render(); } }
+        
+        function startSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) return alert("Trình duyệt không hỗ trợ.");
+            const rec = new webkitSpeechRecognition();
+            rec.lang = 'zh-CN'; rec.interimResults = false;
+            const btn = document.getElementById('mic-btn');
+            const msg = document.getElementById('quiz-msg');
+            const target = displayList[currentIndex]?.hanzi;
+            if (!target) return;
+            rec.onstart = () => { btn.classList.add('listening'); msg.innerText = "Đang nghe..."; };
+            rec.onresult = (e) => {
+                const result = e.results[0][0].transcript;
+                if (result === target) {
+                    msg.innerHTML = `<span style="color:var(--success)">✅ Khớp: ${result}</span>`;
+                } else {
+                    msg.innerHTML = `<span style="color:var(--primary)">❌ Nghe thành: "${result}"</span>`;
+                }
+            };
+            rec.onend = () => btn.classList.remove('listening');
+            rec.start();
+        }
 
         window.onload = init;
     </script>
