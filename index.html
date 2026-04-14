@@ -46,6 +46,16 @@
             position: relative;
         }
 
+        /* --- THÀNH PHẦN MỚI: CSS CHO MODAL TRA CỨU --- */
+        #hanzii-modal {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 9999; flex-direction: column;
+        }
+        #hanzii-header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f1f1f1; border-bottom: 1px solid #ddd; }
+        #hanzii-frame-container { flex: 1; overflow: hidden; }
+        #hanzii-iframe { width: 100%; height: 100%; border: none; }
+        /* ------------------------------------------ */
+
         #standard-area, #game-area { width: 100%; display: flex; flex-direction: column; }
         
         .tab-menu { display: flex; width: 100%; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 8px 0; }
@@ -72,9 +82,7 @@
 
         .grid-container { width: 190px; height: 190px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
         .grid-line-v, .grid-line-h { position: absolute; background: #f0f0f0; z-index: 1; }
-        .grid-line-v { left: 50%; top: 0; width: 1px; height: 100%; }
-        .grid-line-h { top: 50%; left: 0; width: 100%; height: 1px; }
-        #stroke-target { position: relative; z-index: 2; width: 100%; height: 100%; }
+        .grid-line-v { left: 50%; top: 0; width: 1px; height: 100%; }<br>        .grid-line-h { top: 50%; left: 0; width: 100%; height: 1px; }<br>        #stroke-target { position: relative; z-index: 2; width: 100%; height: 100%; }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; width: 100%; }
         button.action { flex: 1; padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
@@ -99,6 +107,13 @@
 <body>
 
     <div class="app-container">
+        <div id="hanzii-modal">
+            <div id="hanzii-header">
+                <span style="font-weight:bold; color:#00b4d8; font-size: 14px;">Hanzii Dictionary</span>
+                <button onclick="closeHanzii()" style="background:var(--primary); color:white; border:none; padding:6px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">ĐÓNG</button>
+            </div>
+            <div id="hanzii-frame-container"><iframe id="hanzii-iframe"></iframe></div>
+        </div>
         <div id="status" style="font-size: 9px; color: #adb5bd; margin-bottom: 3px;">Syncing...</div>
         
         <div class="tab-menu">
@@ -135,10 +150,14 @@
                         <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0;"></div>
                         <button class="action" style="background:var(--secondary); width: auto; padding: 8px 20px; border-radius: 10px;" onclick="flipCard()">ĐÁP ÁN</button>
                     </div>
-                    <div class="card-face card-back" onclick="flipCard()">
+                    <div class="card-face card-back">
                         <div id="back-hanzi" style="font-size:75px; color:var(--primary); font-family:var(--kaiti-font)"></div>
                         <p id="back-pinyin" style="font-size:24px; color:var(--secondary); margin:5px 0"></p>
                         <p id="back-meaning" style="font-size:20px; font-weight:bold; text-align: center;"></p>
+                        
+                        <button onclick="openHanzii()" style="margin-top: 15px; padding:10px 20px; background:#00b4d8; color:white; border:none; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">Tra cứu từ điển 🔍</button>
+                        
+                        <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:15px; border-radius: 10px;" onclick="flipCard()">Quay lại</button>
                     </div>
                 </div>
             </div>
@@ -302,14 +321,10 @@
             document.getElementById('s' + v).classList.add('active');
         }
 
-        // --- CẬP NHẬT LOGIC BLAST GAME THEO YÊU CẦU ---
         function startGame() {
             const db = allProgress[currentSheetName] || {};
-            // Chỉ lấy từ Tab Đang học (1-2 sao) và Đã thuộc (>=3 sao)
             const gamePool = originalWords.filter(w => db[w.hanzi]?.count > 0);
-            
             if (gamePool.length < 2) return alert("Bạn cần có ít nhất 2 từ trong danh sách 'Đang học' hoặc 'Đã thuộc' để chơi!");
-            
             document.getElementById('game-start-btn').style.display = 'none';
             gameScore = 0; gameHearts = 3; gameActive = true;
             updateGameUI(); 
@@ -320,14 +335,12 @@
 
         function spawnNewWord(pool) {
             const db = allProgress[currentSheetName] || {};
-            // Tạo weighted pool: từ ít sao xuất hiện nhiều hơn
             let weightedPool = [];
             pool.forEach(word => {
                 const count = db[word.hanzi]?.count || 0;
                 const weight = Math.max(1, 6 - count); 
                 for(let i=0; i < weight; i++) weightedPool.push(word);
             });
-
             currentCorrectWord = weightedPool[Math.floor(Math.random() * weightedPool.length)];
             document.getElementById('game-current-hanzi').innerText = currentCorrectWord.hanzi;
             speakGame(currentCorrectWord.hanzi);
@@ -339,11 +352,9 @@
             const container = document.getElementById('target-container');
             const node = document.createElement('div');
             node.className = 'target-node';
-            
             let word = isCorrect ? currentCorrectWord : pool[Math.floor(Math.random() * pool.length)];
             node.innerText = txt || word.meaning;
             node.style.cssText = `position:absolute; padding:10px 18px; background:white; border-radius:25px; font-weight:bold; font-size:13px; top:550px; left:${Math.random()*250}px; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:100;`;
-            
             node.onclick = () => {
                 if (word.hanzi === currentCorrectWord.hanzi) { 
                     gameScore += 10; node.remove(); spawnNewWord(pool); updateGameUI(); 
@@ -356,7 +367,6 @@
             container.appendChild(node);
             targets.push({ el: node, y: 550, speed: (1.5 + (gameScore/500)) * speedMultiplier, hanzi: word.hanzi });
         }
-        // --- KẾT THÚC PHẦN CẬP NHẬT ---
 
         function updateTargets() {
             targets.forEach((t, i) => {
@@ -417,6 +427,18 @@
             rec.onend = () => btn.classList.remove('listening');
             rec.start();
         }
+
+        /* --- THÀNH PHẦN MỚI: HÀM LOGIC TRA CỨU --- */
+        function openHanzii() {
+            const word = displayList[currentIndex].hanzi;
+            document.getElementById('hanzii-iframe').src = `https://hanzii.net/search/word/${encodeURIComponent(word)}`;
+            document.getElementById('hanzii-modal').style.display = 'flex';
+        }
+        function closeHanzii() {
+            document.getElementById('hanzii-modal').style.display = 'none';
+            document.getElementById('hanzii-iframe').src = "";
+        }
+        /* ------------------------------------------ */
 
         window.onload = init;
     </script>
