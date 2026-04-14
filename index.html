@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlbiIsCiAgIm5hbWUiOiAiVOG7qyBW4buxbmcgTmV3IiwKICAic2hvcnRfbmFtZSI6ICJU4buxIFbhu7tuZyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZjhmOWZhIiwKICAidGhlbWVfY29sb3IiOiAiI2U2Mzk0NiIKfQ==">
+
     <title>Từ Vựng New</title>
     
     <style>
@@ -13,7 +18,27 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: env(safe-area-inset-top) 15px 30px 15px; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; align-items: center; user-select: none; overflow-x: hidden; }
+        
+        /* FIX: Chống vuốt xuống để reload trang và tối ưu trải nghiệm App */
+        html, body { 
+            overscroll-behavior-y: contain; 
+            position: fixed; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden;
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            padding: env(safe-area-inset-top) 15px 30px 15px; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            user-select: none;
+            overflow-y: auto; /* Chỉ cho phép cuộn bên trong nội dung */
+        }
         
         .tab-menu { display: flex; width: 100%; max-width: 450px; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 10px 0; z-index: 100; }
         .tab-menu button { flex: 1; border: none; padding: 10px 2px; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600; color: var(--gray); font-size: 11px; }
@@ -48,7 +73,6 @@
         .btn-group { display: flex; gap: 8px; margin-top: 10px; width: 100%; max-width: 400px; }
         button.action { flex: 1; padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
 
-        /* Game Area */
         #game-area { width: 100%; max-width: 400px; height: 550px; display: none; flex-direction: column; align-items: center; position: relative; background: #0b0b0b; border-radius: 30px; overflow: hidden; border: 4px solid #333; }
         #game-ui { position: absolute; top: 15px; width: 100%; padding: 0 20px; display: flex; justify-content: space-between; color: white; font-weight: bold; z-index: 10; pointer-events: none; font-size: 13px; }
         #game-hearts { color: var(--primary); font-size: 16px; }
@@ -60,7 +84,6 @@
             text-align: center; line-height: 1.2; word-break: break-word; z-index: 5;
         }
         
-        /* Speed Control Moved to Top */
         .speed-control { 
             position: absolute; top: 45px; display: flex; gap: 15px; z-index: 20; 
             background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; 
@@ -155,6 +178,11 @@
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
         let targets = [], spawnTimer = null, moveInterval = null, speedMultiplier = 1.9;
 
+        // Đăng ký Service Worker để chạy ngoại tuyến
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => console.log("Offline mode ready."));
+        }
+
         async function init() {
             const cached = localStorage.getItem('hsk_cached_words');
             if (cached) { originalWords = JSON.parse(cached); render(); }
@@ -236,7 +264,17 @@
 
         function drawChar(c) {
             document.getElementById('stroke-target').innerHTML = "";
-            HanziWriter.create('stroke-target', c, { width: 200, height: 200, padding: 15, strokeColor: '#e63946', showOutline: true }).animateCharacter();
+            const db = allProgress[currentSheetName] || {};
+            const currentHanzi = displayList[currentIndex]?.hanzi;
+            const count = db[currentHanzi]?.count || 0;
+            
+            HanziWriter.create('stroke-target', c, { 
+                width: 200, 
+                height: 200, 
+                padding: 15, 
+                strokeColor: '#e63946', 
+                showOutline: (count >= 5) 
+            }).animateCharacter();
         }
 
         function startSpeechRecognition() {
@@ -319,11 +357,11 @@
             node.style.left = Math.random() * (document.getElementById('game-area').clientWidth - 110) + 'px';
             node.style.top = '550px';
             const targetObj = { el: node, y: 550, speed: (1.4 + (gameScore / 550)) * speedMultiplier, hanzi: wordObj.hanzi, isSafe: false };
+            
             node.onclick = () => {
                 if (targetObj.hanzi === currentCorrectWord.hanzi) {
                     gameScore += 10;
-                    node.style.background = "var(--success)"; node.style.color = "white";
-                    setTimeout(() => node.remove(), 100);
+                    node.remove(); 
                     spawnNewWord();
                 } else {
                     gameHearts--;
