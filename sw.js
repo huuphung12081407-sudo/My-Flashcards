@@ -1,46 +1,18 @@
-const CACHE_NAME = 'my-flashcards-v2.1'; // Thay đổi số này mỗi khi bạn cập nhật code
-const urlsToCache = [
-  './',
-  './index.html',
-  'https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js'
-];
+const CACHE_NAME = 'flashcards-final-v1';
+const urlsToCache = ['./', './index.html'];
 
-// Cài đặt và lưu các file cần thiết vào bộ nhớ đệm (Cache)
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
-    })
-  );
-  self.skipWaiting();
+self.addEventListener('install', e => {
+    self.skipWaiting();
+    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache)));
 });
 
-// Xóa cache cũ khi có phiên bản mới
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
-  );
+self.addEventListener('activate', e => {
+    e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE_NAME && caches.delete(k)))));
 });
 
-// Phản hồi yêu cầu khi không có mạng
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      // Trả về file từ cache nếu có, nếu không thì tải từ mạng
-      return response || fetch(event.request).catch(() => {
-        // Nếu là yêu cầu trang chính mà không có mạng, trả về cache gốc
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
-  );
+self.addEventListener('fetch', e => {
+    // Chiến lược Network First: Thử lấy từ mạng trước, lỗi mạng mới lấy từ Cache
+    e.respondWith(
+        fetch(e.request).catch(() => caches.match(e.request))
+    );
 });
