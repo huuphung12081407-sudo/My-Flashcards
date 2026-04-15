@@ -98,6 +98,18 @@
             border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer; 
             z-index: 10; position: relative;
         }
+	/* Phần hiển thị ví dụ ở mặt sau */
+        .example {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #555;
+            font-style: italic;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+            width: 100%;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
     </style>
 </head>
 <body>
@@ -153,6 +165,7 @@
                         <div id="back-hanzi" style="font-size:75px; color:var(--primary); font-family:var(--kaiti-font)"></div>
                         <p id="back-pinyin" style="font-size:24px; color:var(--secondary); margin:5px 0"></p>
                         <p id="back-meaning" style="font-size:20px; font-weight:bold; text-align: center;"></p>
+			<p id="back-example" style="font-size:16px; color:#555; font-style:italic; margin-top:10px; border-top:1px solid #ddd; padding-top:5px; text-align:center; width:90%; display:none;"></p>
                         <button class="btn-lookup" onclick="openHanzii(event)">Tra cứu từ điển 🔍</button>
                         <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:15px; border-radius: 10px;" onclick="flipCard()">Quay lại</button>
                     </div>
@@ -193,7 +206,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-lHjeH52ljO-f99E1XAdGuv6qRbCEHnO9mpu8V44T_rvbBQUBKS1Abs5LiM0uUX_s/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0eAYG6Skvnm5d_qnBe7dYpDJ3oq-rb5zjgfcM-mNrIMDCoGPIl4l66y4re8AJS56I/exec';
         let originalWords = [], displayList = [], currentIndex = 0, currentTab = 'new';
         let currentSheetName = "Default", allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
@@ -203,15 +216,26 @@
 
         async function init() {
             const cached = localStorage.getItem('hsk_cached_words');
-            if (cached) { originalWords = JSON.parse(cached); render(); }
+            if (cached) { 
+                try {
+                    originalWords = JSON.parse(cached); 
+                    render(); 
+                } catch(e) { console.log("Cache lỗi"); }
+            }
             try {
                 const res = await fetch(SCRIPT_URL);
                 const result = await res.json();
-                originalWords = result.words; currentSheetName = result.sheetName;
-                document.getElementById('status').innerText = currentSheetName;
-                localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
-                render();
-            } catch (e) { document.getElementById('status').innerText = "Offline Mode"; }
+                if (result && result.words) {
+                    originalWords = result.words; 
+                    currentSheetName = result.sheetName || "Default";
+                    document.getElementById('status').innerText = currentSheetName;
+                    localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
+                    render();
+                }
+            } catch (e) { 
+                console.error(e);
+                document.getElementById('status').innerText = "Lỗi kết nối!"; 
+            }
         }
 
         function changeTab(t) {
@@ -282,6 +306,16 @@
             document.getElementById('back-hanzi').innerText = w.hanzi;
             document.getElementById('back-pinyin').innerText = w.pinyin;
             document.getElementById('back-meaning').innerText = w.meaning;
+		const exampleEl = document.getElementById('back-example');
+            if (exampleEl) {
+                if (w && w.example) {
+                    exampleEl.innerText = w.example;
+                    exampleEl.style.display = "block";
+                } else {
+                    exampleEl.innerText = "";
+                    exampleEl.style.display = "none";
+                }
+            }
         }
 
         function drawChar(c) {
