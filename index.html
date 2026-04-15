@@ -480,6 +480,18 @@
         }
 
         window.onload = init;
+	// --- PHẦN CẬP NHẬT NGOẠI TUYẾN ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => {
+                console.log('SW đã đăng ký thành công cho:', reg.scope);
+                // Tự động kiểm tra cập nhật mỗi khi load trang
+                reg.update();
+            })
+            .catch(err => console.log('SW đăng ký thất bại:', err));
+    });
+}
     </script>
 </body>
 </html>
