@@ -219,38 +219,61 @@
         let isBlindMode = false;
 
         async function init() {
-            // Hiển thị ngay lập tức dữ liệu đang có trong máy (đảm bảo offline mượt)
+            // 1. Cập nhật trạng thái hiển thị (Online/Offline) ngay lập tức khi vừa mở trang
+            updateOnlineStatus();
+
+            // 2. Hiển thị ngay dữ liệu đang có trong máy để có thể học được luôn
             if (originalWords.length > 0) {
-                document.getElementById('status').innerText = "Offline: " + currentSheetName;
                 render();
             }
 
+            // 3. Thử kết nối tới Google Sheets để lấy dữ liệu mới nhất
             try {
                 const res = await fetch(SCRIPT_URL);
                 const result = await res.json();
                 
                 if (result && result.words) {
-                    // Cập nhật dữ liệu mới từ Server
                     originalWords = result.words; 
                     currentSheetName = result.sheetName || "Default";
                     
-                    // Ghi đè vào bộ nhớ đệm ngay lập tức
+                    // Lưu lại để dùng cho lần sau (offline)
                     localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
                     localStorage.setItem('hsk_current_sheet_name', currentSheetName);
                     
-                    document.getElementById('status').innerText = currentSheetName;
-                    
-                    // Đọc lại tiến độ để khớp với Sheet vừa tải về
+                    // Cập nhật lại giao diện với dữ liệu mới và tên Sheet đúng
+                    updateOnlineStatus(); 
                     allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
                     render();
                 }
             } catch (e) { 
-                console.log("Đang chạy chế độ ngoại tuyến hoàn toàn.");
-                // Trong trường hợp lỗi mạng, nạp lại dữ liệu từ máy một lần nữa cho chắc chắn
+                console.log("Không thể kết nối mạng, giữ nguyên chế độ Offline.");
+                // Dù lỗi mạng vẫn đảm bảo render đúng tiến độ từ máy
                 allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
                 render();
             }
         }
+
+        // --- BỔ SUNG THÊM CÁC HÀM NÀY PHÍA DƯỚI HÀM INIT ---
+
+        function updateOnlineStatus() {
+            const statusEl = document.getElementById('status');
+            if (navigator.onLine) {
+                statusEl.innerText = "Đang trực tuyến: " + currentSheetName;
+                statusEl.style.color = "#2a9d8f"; // Màu xanh khi có mạng
+            } else {
+                statusEl.innerText = "Ngoại tuyến: " + currentSheetName;
+                statusEl.style.color = "#adb5bd"; // Màu xám khi mất mạng
+            }
+        }
+
+        // Lắng nghe sự kiện thay đổi mạng trong lúc đang sử dụng
+        window.addEventListener('online', () => {
+            updateOnlineStatus();
+            // Nếu vừa có mạng lại, tự động chạy lại init để đồng bộ dữ liệu mới nhất
+            init(); 
+        });
+        
+        window.addEventListener('offline', updateOnlineStatus);
 
 // Thêm một dòng này vào ĐẦU hàm render() của bạn để chắc chắn dữ liệu luôn mới
 function render() {
