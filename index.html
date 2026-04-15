@@ -215,28 +215,41 @@
         let isBlindMode = false;
 
         async function init() {
-            const cached = localStorage.getItem('hsk_cached_words');
-            if (cached) { 
-                try {
-                    originalWords = JSON.parse(cached); 
-                    render(); 
-                } catch(e) { console.log("Cache lỗi"); }
-            }
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const result = await res.json();
-                if (result && result.words) {
-                    originalWords = result.words; 
-                    currentSheetName = result.sheetName || "Default";
-                    document.getElementById('status').innerText = currentSheetName;
-                    localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
-                    render();
-                }
-            } catch (e) { 
-                console.error(e);
-                document.getElementById('status').innerText = "Ngoại tuyến!"; 
-            }
+    // 1. Lấy tên Sheet đã lưu trước đó (giúp đồng bộ kho tiến độ khi offline)
+    const savedSheetName = localStorage.getItem('hsk_current_sheet_name');
+    if (savedSheetName) {
+        currentSheetName = savedSheetName;
+        document.getElementById('status').innerText = currentSheetName;
+    }
+
+    const cached = localStorage.getItem('hsk_cached_words');
+    if (cached) { 
+        try {
+            originalWords = JSON.parse(cached); 
+            render(); 
+        } catch(e) { console.log("Cache lỗi"); }
+    }
+
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const result = await res.json();
+        if (result && result.words) {
+            originalWords = result.words; 
+            currentSheetName = result.sheetName || "Default";
+            
+            // 2. QUAN TRỌNG: Lưu tên Sheet vào localStorage để dùng khi offline
+            localStorage.setItem('hsk_current_sheet_name', currentSheetName);
+            
+            document.getElementById('status').innerText = currentSheetName;
+            localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
+            render();
         }
+    } catch (e) { 
+        console.error(e);
+        // Khi offline, hiển thị trạng thái kèm tên sheet đang dùng từ bộ nhớ
+        document.getElementById('status').innerText = "Offline: " + currentSheetName; 
+    }
+}
 
         function changeTab(t) {
             currentTab = t; stopGame();
