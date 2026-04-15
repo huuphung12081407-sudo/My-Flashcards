@@ -214,18 +214,22 @@
         let writerInstance = null;
         let isBlindMode = false;
 
-        async function init() {
-    // 1. Lấy tên Sheet đã lưu trước đó (giúp đồng bộ kho tiến độ khi offline)
+       // Thay thế hàm init cũ
+async function init() {
+    // 1. Khôi phục tên Sheet từ bộ nhớ ngay lập tức
     const savedSheetName = localStorage.getItem('hsk_current_sheet_name');
     if (savedSheetName) {
         currentSheetName = savedSheetName;
-        document.getElementById('status').innerText = currentSheetName;
+        document.getElementById('status').innerText = "Offline: " + currentSheetName;
     }
 
+    // 2. Tải dữ liệu từ vựng đã lưu
     const cached = localStorage.getItem('hsk_cached_words');
     if (cached) { 
         try {
             originalWords = JSON.parse(cached); 
+            // Cập nhật lại biến allProgress từ localStorage trước khi render
+            allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
             render(); 
         } catch(e) { console.log("Cache lỗi"); }
     }
@@ -237,18 +241,38 @@
             originalWords = result.words; 
             currentSheetName = result.sheetName || "Default";
             
-            // 2. QUAN TRỌNG: Lưu tên Sheet vào localStorage để dùng khi offline
+            // Lưu tên sheet để dùng cho lần sau (offline)
             localStorage.setItem('hsk_current_sheet_name', currentSheetName);
             
             document.getElementById('status').innerText = currentSheetName;
             localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
+            
+            // Cập nhật lại tiến độ mới nhất trước khi vẽ giao diện
+            allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
             render();
         }
     } catch (e) { 
-        console.error(e);
-        // Khi offline, hiển thị trạng thái kèm tên sheet đang dùng từ bộ nhớ
-        document.getElementById('status').innerText = "Offline: " + currentSheetName; 
+        console.error("Lỗi fetch:", e);
+        document.getElementById('status').innerText = "Offline: " + currentSheetName;
+        // Đảm bảo khi lỗi mạng, vẫn phải có allProgress để render
+        allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
+        render();
     }
+}
+
+// Thêm một dòng này vào ĐẦU hàm render() của bạn để chắc chắn dữ liệu luôn mới
+function render() {
+    // Ép buộc cập nhật lại allProgress từ kho lưu trữ mỗi khi render
+    allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
+    
+    const db = allProgress[currentSheetName] || {};
+    if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
+    else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count > 0 && db[w.hanzi]?.count < 3);
+    else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 3);
+    
+    currentIndex = 0; 
+    updateStats(); 
+    updateUI();
 }
 
         function changeTab(t) {
