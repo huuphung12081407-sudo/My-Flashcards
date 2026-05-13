@@ -31,7 +31,6 @@
             display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative;
         }
 
-        /* MODAL TRA CỨU */
         #hanzii-modal {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 99999; flex-direction: column;
@@ -54,21 +53,32 @@
         .pb-learning { background: var(--orange); }
         .pb-new { background: #dee2e6; }
         
-        .container { width: 100%; height: 400px; perspective: 1000px; margin-bottom: 10px; }
+        .container { width: 100%; height: 380px; perspective: 1000px; margin-bottom: 10px; }
         .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .flashcard.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; border-radius: 25px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 15px; border: 1px solid rgba(0,0,0,0.03); }
-        .card-back { transform: rotateY(180deg); border-top: 6px solid var(--secondary); justify-content: center; z-index: 2; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; border-radius: 25px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 15px; border: 1px solid rgba(0,0,0,0.03); overflow-y: auto; }
+        .card-back { transform: rotateY(180deg); border-top: 6px solid var(--secondary); justify-content: flex-start; z-index: 2; padding-top: 30px; }
 
-        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 85px; }
+        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 85px; text-align: center; }
         .hanzi-char { font-family: var(--kaiti-font); font-size: 65px; cursor: pointer; color: #000; padding: 0 2px; }
         .hanzi-char.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
 
-        .grid-container { width: 190px; height: 190px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
+        .grid-container { width: 180px; height: 180px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
         .grid-line-v, .grid-line-h { position: absolute; background: #f0f0f0; z-index: 1; }
         .grid-line-v { left: 50%; top: 0; width: 1px; height: 100%; }
         .grid-line-h { top: 50%; left: 0; width: 100%; height: 1px; }
         #stroke-target { position: relative; z-index: 2; width: 100%; height: 100%; }
+
+        /* QUIZ UI */
+        .quiz-container { width: 100%; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+        .quiz-btn { padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .quiz-input { width: 90%; padding: 12px; border-radius: 12px; border: 2px solid var(--secondary); text-align: center; font-size: 18px; outline: none; }
+
+        /* TTS SETTINGS */
+        .tts-settings { width: 90%; background: #f8f9fa; padding: 10px; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 8px; }
+        .tts-settings select, .tts-settings input { width: 100%; font-size: 12px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        .tts-label { font-size: 10px; font-weight: bold; color: var(--gray); display: flex; justify-content: space-between; }
 
         .btn-group { display: flex; gap: 8px; margin-top: 5px; width: 100%; }
         button.action { flex: 1; padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
@@ -92,23 +102,9 @@
         .listening { animation: pulse 0.8s infinite; border: 2px solid white !important; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
         
-        /* FIX CẢM ỨNG NÚT TRA CỨU */
         .btn-lookup { 
-            margin-top: 15px; padding:12px 20px; background:#00b4d8; color:white; border:none; 
-            border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer; 
-            z-index: 10; position: relative;
-        }
-	/* Phần hiển thị ví dụ ở mặt sau */
-        .example {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: #555;
-            font-style: italic;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
-            width: 100%;
-            word-wrap: break-word;
-            line-height: 1.2;
+            margin-top: 10px; padding:10px 20px; background:#00b4d8; color:white; border:none; 
+            border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer; 
         }
     </style>
 </head>
@@ -130,7 +126,7 @@
         <div class="tab-menu">
             <button id="tab-new" class="active" onclick="changeTab('new')">MỚI</button>
             <button id="tab-learning" onclick="changeTab('learning')">ĐANG HỌC</button>
-            <button id="tab-mastered" onclick="changeTab('mastered')">ĐÃ THUỘC</button>
+            <button id="tab-mastered" onclick="changeTab('mastered')">ĐẢ THUỘC</button>
             <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST GAME</button>
         </div>
 
@@ -154,20 +150,39 @@
                     <div class="card-face">
                         <div id="mastery-count" style="font-size: 12px; margin-bottom: 2px;"></div>
                         <div id="hanzi-wrapper"></div>
-                        <div class="grid-container">
-                            <div class="grid-line-v"></div><div class="grid-line-h"></div>
-                            <div id="stroke-target"></div>
+                        
+                        <div id="interactive-content" style="width: 100%;">
+                            <div id="grid-box" class="grid-container">
+                                <div class="grid-line-v"></div><div class="grid-line-h"></div>
+                                <div id="stroke-target"></div>
+                            </div>
+                            <div id="quiz-box"></div>
                         </div>
+
                         <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0;"></div>
                         <button class="action" style="background:var(--secondary); width: auto; padding: 8px 20px; border-radius: 10px;" onclick="flipCard()">ĐÁP ÁN</button>
                     </div>
-                    <div class="card-face card-back">
-                        <div id="back-hanzi" style="font-size:75px; color:var(--primary); font-family:var(--kaiti-font)"></div>
-                        <p id="back-pinyin" style="font-size:24px; color:var(--secondary); margin:5px 0"></p>
-                        <p id="back-meaning" style="font-size:20px; font-weight:bold; text-align: center;"></p>
-			<p id="back-example" style="font-size:16px; color:#555; font-style:italic; margin-top:10px; border-top:1px solid #ddd; padding-top:5px; text-align:center; width:90%; display:none;"></p>
+                    
+                    <div class="card-face card-back" onclick="flipCard()">
+                        <div id="back-hanzi" style="font-size:65px; color:var(--primary); font-family:var(--kaiti-font)"></div>
+                        <p id="back-pinyin" style="font-size:20px; color:var(--secondary); margin:5px 0"></p>
+                        <p id="back-meaning" style="font-size:18px; font-weight:bold; text-align: center;"></p>
+                        
+                        <div id="example-box" style="width:90%; border-top:1px solid #ddd; margin-top:10px; padding-top:10px; display:none; position:relative;" onclick="event.stopPropagation()">
+                            <p id="back-example" style="font-size:14px; color:#555; font-style:italic; margin:0; padding-right:35px;"></p>
+                            <button onclick="speakExample(event)" style="position:absolute; right:0; top:10px; border:none; background:var(--secondary); color:white; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:12px;">🔊</button>
+                        </div>
+
                         <button class="btn-lookup" onclick="openHanzii(event)">Tra cứu từ điển 🔍</button>
-                        <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:15px; border-radius: 10px;" onclick="flipCard()">Quay lại</button>
+
+                        <div class="tts-settings" onclick="event.stopPropagation()">
+                            <div class="tts-label"><span>GIỌNG ĐỌC:</span></div>
+                            <select id="voice-select"></select>
+                            <div class="tts-label"><span>TỐC ĐỘ:</span> <span id="speed-val">1.0</span></div>
+                            <input range id="speed-range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateSpeedVal(this.value)">
+                        </div>
+
+                        <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:10px; border-radius: 10px;" onclick="event.stopPropagation(); flipCard()">Quay lại</button>
                     </div>
                 </div>
             </div>
@@ -207,7 +222,7 @@
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0eAYG6Skvnm5d_qnBe7dYpDJ3oq-rb5zjgfcM-mNrIMDCoGPIl4l66y4re8AJS56I/exec';
-        // --- KHỞI TẠO DỮ LIỆU CỨNG (FIX ĐỒNG BỘ) ---
+        
         let originalWords = JSON.parse(localStorage.getItem('hsk_cached_words') || "[]");
         let currentSheetName = localStorage.getItem('hsk_current_sheet_name') || "Default";
         let allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
@@ -215,80 +230,56 @@
         let displayList = [], currentIndex = 0, currentTab = 'new';
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
         let targets = [], spawnTimer = null, moveInterval = null, speedMultiplier = 1.9;
-        let writerInstance = null;
-        let isBlindMode = false;
+        let writerInstance = null, isBlindMode = false;
+        let voices = [];
 
         async function init() {
-            // 1. Cập nhật trạng thái hiển thị (Online/Offline) ngay lập tức khi vừa mở trang
             updateOnlineStatus();
+            initVoices();
+            if (originalWords.length > 0) render();
 
-            // 2. Hiển thị ngay dữ liệu đang có trong máy để có thể học được luôn
-            if (originalWords.length > 0) {
-                render();
-            }
-
-            // 3. Thử kết nối tới Google Sheets để lấy dữ liệu mới nhất
             try {
                 const res = await fetch(SCRIPT_URL);
                 const result = await res.json();
-                
                 if (result && result.words) {
                     originalWords = result.words; 
                     currentSheetName = result.sheetName || "Default";
-                    
-                    // Lưu lại để dùng cho lần sau (offline)
                     localStorage.setItem('hsk_cached_words', JSON.stringify(originalWords));
                     localStorage.setItem('hsk_current_sheet_name', currentSheetName);
-                    
-                    // Cập nhật lại giao diện với dữ liệu mới và tên Sheet đúng
                     updateOnlineStatus(); 
-                    allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
                     render();
                 }
-            } catch (e) { 
-                console.log("Không thể kết nối mạng, giữ nguyên chế độ Offline.");
-                // Dù lỗi mạng vẫn đảm bảo render đúng tiến độ từ máy
-                allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
-                render();
-            }
+            } catch (e) { console.log("Offline mode."); render(); }
         }
 
-        // --- BỔ SUNG THÊM CÁC HÀM NÀY PHÍA DƯỚI HÀM INIT ---
+        function initVoices() {
+            const select = document.getElementById('voice-select');
+            const loadVoices = () => {
+                voices = window.speechSynthesis.getVoices();
+                const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN') || v.lang.includes('TW'));
+                select.innerHTML = zhVoices.length > 0 ? '' : '<option>No Chinese voice</option>';
+                zhVoices.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.name;
+                    opt.innerText = v.name.replace('Microsoft', '').replace('Google', '').trim();
+                    if (v.name.includes('Xiaoxiao') || v.name.includes('Chinese')) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            };
+            loadVoices();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function updateSpeedVal(v) { document.getElementById('speed-val').innerText = parseFloat(v).toFixed(1); }
 
         function updateOnlineStatus() {
             const statusEl = document.getElementById('status');
-            if (navigator.onLine) {
-                statusEl.innerText = "Đang trực tuyến: " + currentSheetName;
-                statusEl.style.color = "#2a9d8f"; // Màu xanh khi có mạng
-            } else {
-                statusEl.innerText = "Ngoại tuyến: " + currentSheetName;
-                statusEl.style.color = "#adb5bd"; // Màu xám khi mất mạng
-            }
+            statusEl.innerText = (navigator.onLine ? "Đang trực tuyến: " : "Ngoại tuyến: ") + currentSheetName;
+            statusEl.style.color = navigator.onLine ? "#2a9d8f" : "#adb5bd";
         }
 
-        // Lắng nghe sự kiện thay đổi mạng trong lúc đang sử dụng
-        window.addEventListener('online', () => {
-            updateOnlineStatus();
-            // Nếu vừa có mạng lại, tự động chạy lại init để đồng bộ dữ liệu mới nhất
-            init(); 
-        });
-        
+        window.addEventListener('online', () => { updateOnlineStatus(); init(); });
         window.addEventListener('offline', updateOnlineStatus);
-
-// Thêm một dòng này vào ĐẦU hàm render() của bạn để chắc chắn dữ liệu luôn mới
-function render() {
-    // Ép buộc cập nhật lại allProgress từ kho lưu trữ mỗi khi render
-    allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
-    
-    const db = allProgress[currentSheetName] || {};
-    if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
-    else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count > 0 && db[w.hanzi]?.count < 3);
-    else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 3);
-    
-    currentIndex = 0; 
-    updateStats(); 
-    updateUI();
-}
 
         function changeTab(t) {
             currentTab = t; stopGame();
@@ -307,18 +298,19 @@ function render() {
         }
 
         function render() {
+            allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
             const db = allProgress[currentSheetName] || {};
             if (currentTab === 'new') displayList = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0);
-            else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count > 0 && db[w.hanzi]?.count < 3);
-            else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 3);
+            else if (currentTab === 'learning') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 1 && db[w.hanzi]?.count <= 3);
+            else if (currentTab === 'mastered') displayList = originalWords.filter(w => db[w.hanzi]?.count >= 4);
             currentIndex = 0; updateStats(); updateUI();
         }
 
         function updateStats() {
             const db = allProgress[currentSheetName] || {};
             const n = originalWords.filter(w => !db[w.hanzi] || db[w.hanzi].count === 0).length;
-            const l = originalWords.filter(w => db[w.hanzi]?.count > 0 && db[w.hanzi]?.count < 3).length;
-            const m = originalWords.filter(w => db[w.hanzi]?.count >= 3).length;
+            const l = originalWords.filter(w => db[w.hanzi]?.count >= 1 && db[w.hanzi]?.count <= 3).length;
+            const m = originalWords.filter(w => db[w.hanzi]?.count >= 4).length;
             document.getElementById('stat-new-count').innerText = n;
             document.getElementById('stat-learning-count').innerText = l;
             document.getElementById('stat-mastered-count').innerText = m;
@@ -331,55 +323,119 @@ function render() {
         function updateUI() {
             const w = displayList[currentIndex];
             const wrap = document.getElementById('hanzi-wrapper');
-            const targetDiv = document.getElementById('stroke-target');
+            const grid = document.getElementById('grid-box');
+            const quizBox = document.getElementById('quiz-box');
             const msg = document.getElementById('quiz-msg');
-            msg.innerText = ""; wrap.innerHTML = ""; targetDiv.innerHTML = "";
+            
+            msg.innerText = ""; wrap.innerHTML = ""; quizBox.innerHTML = "";
             document.getElementById('card').classList.remove('flipped');
-            if (!w) { wrap.innerHTML = "Trống"; return; }
+            grid.style.display = "block";
+
+            if (!w) { wrap.innerHTML = "Trống"; grid.style.display = "none"; return; }
+            
             const db = allProgress[currentSheetName] || {};
             const count = db[w.hanzi]?.count || 0;
             document.getElementById('mastery-count').innerText = count > 0 ? "⭐".repeat(count) : "🆕";
 
-            if (currentTab === 'mastered') {
-                wrap.innerHTML = `<div style="text-align:center"><small>Viết chữ:</small><br><b>${w.meaning}</b></div>`;
+            if (currentTab === 'learning') {
+                grid.style.display = "none";
+                if (count === 1) { 
+                    wrap.innerHTML = `<div style="font-size:45px; font-family:var(--kaiti-font);">${w.hanzi}</div>`;
+                    createMultipleChoice(w);
+                } else if (count === 2) {
+                    wrap.innerHTML = `<div style="font-size:45px; font-family:var(--kaiti-font);">${w.hanzi}</div>`;
+                    createInputQuiz(w, 'pinyin');
+                } else if (count === 3) {
+                    wrap.innerHTML = `<div style="font-size:22px; color:var(--secondary); font-weight:bold;">${w.meaning}</div>`;
+                    createInputQuiz(w, 'hanzi');
+                }
+            } else if (currentTab === 'mastered') {
+                wrap.innerHTML = `<div style="text-align:center"><small>Viết lại chữ:</small><br><b>${w.meaning}</b></div>`;
                 startQuizMode(w.hanzi, 0);
             } else {
                 w.hanzi.split("").forEach((c, i) => {
                     const s = document.createElement("span"); s.innerText = c;
                     s.className = "hanzi-char " + (i === 0 ? "active" : "");
-                    s.onclick = () => {
-                        document.querySelectorAll('.hanzi-char').forEach(e => e.classList.remove('active'));
-                        s.classList.add('active'); drawChar(c);
-                    };
+                    s.onclick = () => { document.querySelectorAll('.hanzi-char').forEach(e => e.classList.remove('active')); s.classList.add('active'); drawChar(c); };
                     wrap.appendChild(s);
                 });
                 drawChar(w.hanzi[0]);
             }
+
             document.getElementById('back-hanzi').innerText = w.hanzi;
             document.getElementById('back-pinyin').innerText = w.pinyin;
             document.getElementById('back-meaning').innerText = w.meaning;
-		const exampleEl = document.getElementById('back-example');
-            if (exampleEl) {
-                if (w && w.example) {
-                    exampleEl.innerText = w.example;
-                    exampleEl.style.display = "block";
-                } else {
-                    exampleEl.innerText = "";
-                    exampleEl.style.display = "none";
-                }
+            const exBox = document.getElementById('example-box');
+            const exTxt = document.getElementById('back-example');
+            if (w.example) {
+                exBox.style.display = "block";
+                exTxt.innerText = w.example;
+            } else {
+                exBox.style.display = "none";
             }
+        }
+
+        function createMultipleChoice(correctWord) {
+            const box = document.getElementById('quiz-box');
+            let choices = originalWords.filter(w => w.hanzi !== correctWord.hanzi).sort(() => 0.5 - Math.random()).slice(0, 3).map(w => w.meaning);
+            choices.push(correctWord.meaning);
+            choices.sort(() => 0.5 - Math.random());
+            const container = document.createElement('div');
+            container.className = 'quiz-options';
+            choices.forEach(choice => {
+                const btn = document.createElement('button'); btn.className = 'quiz-btn'; btn.innerText = choice;
+                btn.onclick = () => { 
+                    if (choice === correctWord.meaning) handleMark(true); 
+                    else { 
+                        btn.style.background = "#fee"; 
+                        document.getElementById('quiz-msg').innerText = "❌ Thử lại nhé (Giảm 1⭐)"; 
+                        handleMark(false);
+                    } 
+                };
+                container.appendChild(btn);
+            });
+            box.appendChild(container);
+        }
+
+        function createInputQuiz(word, type) {
+            const box = document.getElementById('quiz-box');
+            const container = document.createElement('div'); container.className = 'quiz-container';
+            const input = document.createElement('input'); input.className = 'quiz-input';
+            input.placeholder = type === 'pinyin' ? "Nhập phiên âm..." : "Nhập chữ Hán...";
+            const btn = document.createElement('button'); btn.className = 'action'; btn.style.background = 'var(--secondary)'; btn.innerText = "KIỂM TRA";
+            
+            const check = () => {
+                let val = input.value.trim().toLowerCase();
+                let target = type === 'pinyin' ? word.pinyin.toLowerCase() : word.hanzi;
+                
+                // Logic cập nhật: Chấp nhận có dấu cách hoặc không nếu là Pinyin
+                if (type === 'pinyin') {
+                    val = val.replace(/\s+/g, '');
+                    target = target.replace(/\s+/g, '');
+                }
+
+                if (val === target) handleMark(true);
+                else { 
+                    document.getElementById('quiz-msg').innerText = `❌ Sai rồi! (Giảm 1⭐)`; 
+                    input.style.borderColor = "var(--primary)";
+                    handleMark(false);
+                }
+            };
+            
+            btn.onclick = check; input.onkeypress = (e) => { if(e.key === 'Enter') check(); };
+            container.appendChild(input); container.appendChild(btn); box.appendChild(container); input.focus();
         }
 
         function drawChar(c) {
             document.getElementById('stroke-target').innerHTML = "";
-            writerInstance = HanziWriter.create('stroke-target', c, { width: 190, height: 190, padding: 15, strokeColor: '#e63946', showOutline: true, showCharacter: false });
+            writerInstance = HanziWriter.create('stroke-target', c, { width: 180, height: 180, padding: 15, strokeColor: '#e63946', showOutline: true, showCharacter: false });
             writerInstance.animateCharacter();
         }
 
         function startQuizMode(fullHanzi, charIndex) {
             const charToDraw = fullHanzi[charIndex];
             document.getElementById('stroke-target').innerHTML = "";
-            writerInstance = HanziWriter.create('stroke-target', charToDraw, { width: 190, height: 190, padding: 15, showOutline: false, showCharacter: false, strokeColor: '#e63946', drawingColor: '#2a9d8f' });
+            writerInstance = HanziWriter.create('stroke-target', charToDraw, { width: 180, height: 180, padding: 15, showOutline: false, showCharacter: false, strokeColor: '#e63946', drawingColor: '#2a9d8f' });
             writerInstance.quiz({
                 onComplete: () => { 
                     if (charIndex < fullHanzi.length - 1) setTimeout(() => startQuizMode(fullHanzi, charIndex + 1), 500);
@@ -388,162 +444,118 @@ function render() {
             });
         }
 
-        function setSpeed(v) {
-            speedMultiplier = v === 1 ? 0.6 : v === 2 ? 1.1 : 1.9;
-            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('s' + v).classList.add('active');
+        function handleMark(ok) {
+            const w = displayList[currentIndex]; if(!w) return;
+            const db = allProgress[currentSheetName] || {};
+            if (!db[w.hanzi]) db[w.hanzi] = { count: 0 };
+            db[w.hanzi].count = ok ? Math.min(db[w.hanzi].count + 1, 5) : Math.max(db[w.hanzi].count - 1, 0);
+            allProgress[currentSheetName] = db;
+            localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress));
+            if(ok) document.getElementById('quiz-msg').innerHTML = "<span style='color:var(--success)'>✅ Chính xác!</span>";
+            setTimeout(() => render(), 800);
         }
 
-        function toggleBlindMode() {
-            isBlindMode = !isBlindMode;
-            const btn = document.getElementById('blind-mode-btn');
-            btn.classList.toggle('active');
-            btn.innerText = isBlindMode ? "🙈" : "👁️";
-            if (gameActive) updateGameDisplay();
-        }
-
-        function updateGameDisplay() {
-            const displayEl = document.getElementById('game-current-hanzi');
-            if (isBlindMode) displayEl.innerText = "???";
-            else displayEl.innerText = currentCorrectWord ? currentCorrectWord.hanzi : "?";
-        }
-
+        /* --- GAME BLAST --- */
+        function setSpeed(v) { speedMultiplier = v === 1 ? 0.6 : v === 2 ? 1.1 : 1.9; document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active')); document.getElementById('s' + v).classList.add('active'); }
+        function toggleBlindMode() { isBlindMode = !isBlindMode; document.getElementById('blind-mode-btn').classList.toggle('active'); document.getElementById('blind-mode-btn').innerText = isBlindMode ? "🙈" : "👁️"; if (gameActive) updateGameDisplay(); }
+        function updateGameDisplay() { document.getElementById('game-current-hanzi').innerText = isBlindMode ? "???" : (currentCorrectWord ? currentCorrectWord.hanzi : "?"); }
         function startGame() {
-            const db = allProgress[currentSheetName] || {};
-            const gamePool = originalWords.filter(w => db[w.hanzi]?.count > 0);
-            if (gamePool.length < 2) return alert("Bạn cần có ít nhất 2 từ trong danh sách 'Đang học' hoặc 'Đã thuộc' để chơi!");
+            const gamePool = originalWords.filter(w => (allProgress[currentSheetName]?.[w.hanzi]?.count || 0) > 0);
+            if (gamePool.length < 2) return alert("Bạn cần có ít nhất 2 từ đã học để chơi!");
             document.getElementById('game-start-btn').style.display = 'none';
-            gameScore = 0; gameHearts = 3; gameActive = true;
-            updateGameUI(); spawnNewWord(gamePool);
-            moveInterval = setInterval(updateTargets, 20);
-            spawnTimer = setInterval(() => spawnTarget(gamePool), 2400); 
+            gameScore = 0; gameHearts = 3; gameActive = true; updateGameUI(); spawnNewWord(gamePool);
+            moveInterval = setInterval(updateTargets, 20); spawnTimer = setInterval(() => spawnTarget(gamePool), 2400); 
         }
-
         function spawnNewWord(pool) {
-            const db = allProgress[currentSheetName] || {};
-            let weightedPool = [];
-            pool.forEach(word => {
-                const count = db[word.hanzi]?.count || 0;
-                const weight = Math.max(1, 6 - count); 
-                for(let i=0; i < weight; i++) weightedPool.push(word);
-            });
             targets.forEach(t => t.isLegacy = true);
-            currentCorrectWord = weightedPool[Math.floor(Math.random() * weightedPool.length)];
-            updateGameDisplay();
-            speakGame(currentCorrectWord.hanzi);
-            spawnTarget(pool, currentCorrectWord.meaning, true);
+            currentCorrectWord = pool[Math.floor(Math.random() * pool.length)];
+            updateGameDisplay(); speakGame(currentCorrectWord.hanzi); spawnTarget(pool, currentCorrectWord.meaning, true);
         }
-
         function spawnTarget(pool, txt = null, isCorrect = false) {
             if (!gameActive) return;
-            const container = document.getElementById('target-container');
             const node = document.createElement('div');
             let word = isCorrect ? currentCorrectWord : pool[Math.floor(Math.random() * pool.length)];
             node.innerText = txt || word.meaning;
             node.style.cssText = `position:absolute; padding:10px 18px; background:white; border-radius:25px; font-weight:bold; font-size:13px; top:550px; left:${Math.random()*250}px; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:100;`;
             node.onclick = () => {
-                if (word.hanzi === currentCorrectWord.hanzi) { 
-                    gameScore += 10; node.remove(); spawnNewWord(pool); updateGameUI(); 
-                } else { 
-                    gameHearts--; updateGameUI(); 
-                    if(gameHearts <= 0) { stopGame(); alert("Game Over!"); } 
-                    node.style.background="red"; 
-                }
+                if (word.hanzi === currentCorrectWord.hanzi) { gameScore += 10; node.remove(); spawnNewWord(pool); updateGameUI(); }
+                else { gameHearts--; updateGameUI(); if(gameHearts <= 0) { stopGame(); alert("Game Over!"); } node.style.background="red"; }
             };
-            container.appendChild(node);
+            document.getElementById('target-container').appendChild(node);
             targets.push({ el: node, y: 550, speed: (1.5 + (gameScore/500)) * speedMultiplier, hanzi: word.hanzi, isLegacy: false });
         }
-
         function updateTargets() {
             targets.forEach((t, i) => {
                 t.y -= t.speed; t.el.style.top = t.y + 'px';
                 if (t.y < -50) { 
-                    if (t.hanzi === currentCorrectWord.hanzi) {
-                         if (!t.isLegacy || (t.isLegacy && t.y > 180)) {
-                             gameHearts--; updateGameUI(); if(gameHearts <= 0) stopGame();
-                         }
-                    }
+                    if (t.hanzi === currentCorrectWord.hanzi && (!t.isLegacy || t.y > 180)) { gameHearts--; updateGameUI(); if(gameHearts <= 0) stopGame(); }
                     t.el.remove(); targets.splice(i, 1); 
                 }
             });
         }
+        function stopGame() { gameActive = false; clearInterval(moveInterval); clearInterval(spawnTimer); document.getElementById('game-start-btn').style.display = 'block'; document.getElementById('target-container').innerHTML = ''; targets = []; }
+        function updateGameUI() { document.getElementById('game-score').innerText = `Điểm: ${gameScore}`; document.getElementById('game-hearts').innerText = "❤️".repeat(gameHearts) + "🖤".repeat(3 - gameHearts); }
 
-        function stopGame() {
-            gameActive = false; clearInterval(moveInterval); clearInterval(spawnTimer);
-            document.getElementById('game-start-btn').style.display = 'block';
-            document.getElementById('target-container').innerHTML = '';
-            targets = [];
+        /* --- TTS UTILS --- */
+        function getTTSParams() {
+            const voiceName = document.getElementById('voice-select').value;
+            const rate = parseFloat(document.getElementById('speed-range').value);
+            const voice = voices.find(v => v.name === voiceName);
+            return { voice, rate };
         }
 
-        function updateGameUI() {
-            document.getElementById('game-score').innerText = `Điểm: ${gameScore}`;
-            document.getElementById('game-hearts').innerText = "❤️".repeat(gameHearts) + "🖤".repeat(3 - gameHearts);
+        function speak() {
+            window.speechSynthesis.cancel();
+            const { voice, rate } = getTTSParams();
+            const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi);
+            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
+            window.speechSynthesis.speak(msg);
         }
 
-        function handleMark(ok) {
-            const w = displayList[currentIndex]; if(!w) return;
-            if (!allProgress[currentSheetName]) allProgress[currentSheetName] = {};
-            const db = allProgress[currentSheetName];
-            if (!db[w.hanzi]) db[w.hanzi] = { count: 0 };
-            db[w.hanzi].count = ok ? Math.min(db[w.hanzi].count + 1, 5) : Math.max(0, db[w.hanzi].count - 1);
-            localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress));
-            render();
+        function speakExample(e) {
+            if(e) e.stopPropagation();
+            window.speechSynthesis.cancel();
+            const { voice, rate } = getTTSParams();
+            const raw = displayList[currentIndex].example;
+            let chinesePart = raw.split(/[-—(（\[【:|]/)[0];
+            const chineseOnlyMatch = chinesePart.match(/[\u4e00-\u9fa5，。！？；：“”‘’（）]+/g);
+            const chineseOnly = chineseOnlyMatch ? chineseOnlyMatch.join('') : chinesePart.trim();
+            const msg = new SpeechSynthesisUtterance(chineseOnly);
+            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
+            window.speechSynthesis.speak(msg);
         }
 
+        function speakGame(h) {
+            window.speechSynthesis.cancel();
+            const { voice, rate } = getTTSParams();
+            const msg = new SpeechSynthesisUtterance(h);
+            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
+            window.speechSynthesis.speak(msg);
+        }
+
+        /* --- OTHER UTILS --- */
+        function openHanzii(e) { if(e) e.stopPropagation(); const word = displayList[currentIndex].hanzi; if (word) { document.getElementById('hanzii-iframe').src = "https://hanzii.net/search/word/" + encodeURIComponent(word) + "?hl=vi-VN"; document.getElementById('hanzii-modal').style.display = "flex"; } }
+        function closeHanzii() { document.getElementById('hanzii-modal').style.display = "none"; document.getElementById('hanzii-iframe').src = "about:blank"; }
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
         function changeCard(n) { currentIndex = (currentIndex + n + displayList.length) % displayList.length; updateUI(); }
-        function speak() { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
-        function speakGame(h) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(h); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
         function shuffleWords() { displayList.sort(() => Math.random() - 0.5); currentIndex = 0; updateUI(); }
         function resetProgress() { if(confirm("Xóa tiến độ?")) { delete allProgress[currentSheetName]; localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress)); render(); } }
         
         function startSpeechRecognition() {
             if (!('webkitSpeechRecognition' in window)) return alert("Trình duyệt không hỗ trợ.");
-            const rec = new webkitSpeechRecognition();
-            rec.lang = 'zh-CN'; rec.interimResults = false;
+            const rec = new webkitSpeechRecognition(); rec.lang = 'zh-CN';
             const btn = document.getElementById('mic-btn');
-            const msg = document.getElementById('quiz-msg');
-            const target = displayList[currentIndex]?.hanzi;
-            if (!target) return;
-            rec.onstart = () => { btn.classList.add('listening'); msg.innerText = "Đang nghe..."; };
+            rec.onstart = () => { btn.classList.add('listening'); document.getElementById('quiz-msg').innerText = "Đang nghe..."; };
             rec.onresult = (e) => {
                 const result = e.results[0][0].transcript;
-                if (result === target) msg.innerHTML = `<span style="color:var(--success)">✅ Khớp: ${result}</span>`;
-                else msg.innerHTML = `<span style="color:var(--primary)">❌ Nghe thành: "${result}"</span>`;
+                if (result === displayList[currentIndex].hanzi) document.getElementById('quiz-msg').innerHTML = `<span style="color:var(--success)">✅ Khớp: ${result}</span>`;
+                else document.getElementById('quiz-msg').innerHTML = `<span style="color:var(--primary)">❌ Nghe thành: "${result}"</span>`;
             };
             rec.onend = () => btn.classList.remove('listening');
             rec.start();
         }
 
-        /* --- LOGIC TRA CỨU FIX TRIỆT ĐỂ --- */
-        function openHanzii(e) {
-            if(e) e.stopPropagation(); // Ngăn sự kiện chạm lan ra làm lật thẻ
-            const word = displayList[currentIndex].hanzi;
-            if (word) {
-                const iframe = document.getElementById('hanzii-iframe');
-                iframe.src = "https://hanzii.net/search/word/" + encodeURIComponent(word) + "?hl=vi-VN";
-                document.getElementById('hanzii-modal').style.display = "flex";
-            }
-        }
-
-        function closeHanzii() {
-            document.getElementById('hanzii-modal').style.display = "none";
-            document.getElementById('hanzii-iframe').src = "about:blank";
-        }
-
         window.onload = init;
-	// --- PHẦN CẬP NHẬT NGOẠI TUYẾN ---
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => {
-                console.log('SW đã đăng ký thành công cho:', reg.scope);
-                // Tự động kiểm tra cập nhật mỗi khi load trang
-                reg.update();
-            })
-            .catch(err => console.log('SW đăng ký thất bại:', err));
-    });
-}
     </script>
 </body>
 </html>
