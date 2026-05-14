@@ -127,6 +127,10 @@
             margin-top: 10px; padding:10px; background:#00b4d8; color:white; border:none; 
             border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer; width: 100%;
         }
+	#shuffle-toggle-btn.shuffle-on {
+    background-color: var(--success) !important;
+    box-shadow: 0 0 10px rgba(42, 157, 143, 0.4);
+}
     </style>
 </head>
 <body>
@@ -210,7 +214,7 @@
             
             <div class="btn-group">
                 <button class="action" style="background:var(--secondary)" onclick="changeCard(-1)">⬅️</button>
-                <button class="action" style="background:var(--orange)" onclick="shuffleWords()">🔀</button>
+                <button id="shuffle-toggle-btn" class="action" style="background:var(--orange)" onclick="toggleShuffleMode()">🔀</button>
                 <button class="action" style="background:var(--secondary)" onclick="changeCard(1)">➡️</button>
             </div>
             
@@ -249,6 +253,7 @@
         let allProgress = JSON.parse(localStorage.getItem('hsk_multi_sheet_db') || "{}");
         
         let displayList = [], currentIndex = 0, currentTab = 'new';
+	let isShuffleMode = false;
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
         let targets = [], spawnTimer = null, moveInterval = null, speedMultiplier = 1.9;
         let writerInstance = null, voices = [], isBlindMode = false;
@@ -565,8 +570,41 @@
         function openHanzii(e) { if(e) e.stopPropagation(); const word = displayList[currentIndex].hanzi; if (word) { document.getElementById('hanzii-iframe').src = "https://hanzii.net/search/word/" + encodeURIComponent(word) + "?hl=vi-VN"; document.getElementById('hanzii-modal').style.display = "flex"; } }
         function closeHanzii() { document.getElementById('hanzii-modal').style.display = "none"; document.getElementById('hanzii-iframe').src = "about:blank"; }
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
-        function changeCard(n) { currentIndex = (currentIndex + n + displayList.length) % displayList.length; updateUI(); }
-        function shuffleWords() { displayList.sort(() => Math.random() - 0.5); currentIndex = 0; updateUI(); }
+        // 1. Hàm Bật/Tắt chế độ trộn
+function toggleShuffleMode() {
+    isShuffleMode = !isShuffleMode;
+    const btn = document.getElementById('shuffle-toggle-btn');
+    
+    if (isShuffleMode) {
+        btn.classList.add('shuffle-on');
+        // Trộn ngay danh sách hiện tại
+        displayList.sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+        updateUI();
+    } else {
+        btn.classList.remove('shuffle-on');
+        // Tắt trộn: Render lại để về thứ tự mặc định của Tab
+        render(); 
+    }
+}
+
+// 2. Cập nhật lại hàm changeCard (Tìm hàm cũ và thay thế bằng bản này)
+function changeCard(n) {
+    if (displayList.length <= 1) return;
+
+    if (isShuffleMode) {
+        // Nếu đang bật On: Chọn ngẫu nhiên 1 vị trí khác với hiện tại
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * displayList.length);
+        } while (nextIndex === currentIndex && displayList.length > 1);
+        currentIndex = nextIndex;
+    } else {
+        // Nếu đang Off: Đi theo thứ tự +1 hoặc -1 bình thường
+        currentIndex = (currentIndex + n + displayList.length) % displayList.length;
+    }
+    updateUI();
+}
         function resetProgress() { if(confirm("Xóa tiến độ?")) { delete allProgress[currentSheetName]; localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress)); render(); } }
         
         function startSpeechRecognition() {
