@@ -273,21 +273,58 @@
         }
 
         function normalizePinyin(str) {
-            if (!str) return "";
-            let s = str.toLowerCase().replace(/v/g, 'ü').replace(/\s+/g, '');
-            let tone = s.match(/[1-4]/);
-            let charOnly = s.replace(/[1-4]/g, '');
-            const map = { 'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a', 'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e', 'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i', 'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o', 'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u', 'ü': 'u', 'ǘ': 'u', 'ǚ': 'u', 'ǜ': 'u', 'ǖ': 'u' };
-            let deAccented = "";
-            for (let char of charOnly) deAccented += map[char] || char;
-            return { raw: deAccented, tone: tone ? tone[0] : null };
+    if (!str) return "";
+    
+    // 1. Chuyển về chữ thường, thay v thành ü, xóa toàn bộ khoảng trắng để so sánh liền mạch
+    let s = str.toLowerCase().replace(/v/g, 'ü').replace(/\s+/g, '');
+    
+    const toneMap = {
+        'a': ['ā', 'á', 'ǎ', 'à'],
+        'e': ['ē', 'é', 'ě', 'è'],
+        'i': ['ī', 'í', 'ǐ', 'ì'],
+        'o': ['ō', 'ó', 'ǒ', 'ò'],
+        'u': ['ū', 'ú', 'ǔ', 'ù'],
+        'ü': ['ǖ', 'ǘ', 'ǚ', 'ǜ']
+    };
+
+    // 2. Hàm xử lý gắn dấu cho một âm tiết đơn lẻ (VD: "xiang4" -> "xiàng")
+    function applyToneToSyllable(syllable) {
+        let match = syllable.match(/([a-zü]+)([1-4])/);
+        if (!match) return syllable; // Không có số thì giữ nguyên
+        
+        let base = match[1];
+        let tNum = parseInt(match[2]) - 1;
+        
+        // Quy tắc đặt dấu chuẩn quốc tế
+        if (base.includes('a')) return base.replace('a', toneMap['a'][tNum]);
+        if (base.includes('e')) return base.replace('e', toneMap['e'][tNum]);
+        if (base.includes('o')) return base.replace('o', toneMap['o'][tNum]);
+        if (base.includes('ui')) return base.replace('i', toneMap['i'][tNum]);
+        if (base.includes('iu')) return base.replace('u', toneMap['u'][tNum]);
+        
+        for (let v of ['i', 'u', 'ü']) {
+            if (base.includes(v)) return base.replace(v, toneMap[v][tNum]);
         }
+        return base;
+    }
+
+    // 3. Xử lý toàn bộ chuỗi: Tìm tất cả các cụm (chữ + số) và thay thế chúng
+    // Regex này sẽ bắt được mọi cụm như "xiang4", "hao3", "ma0", v.v.
+    let result = s.replace(/[a-zü]+[1-4]/g, (match) => {
+        return applyToneToSyllable(match);
+    });
+
+    return result;
+}
 
         function checkPinyinMatch(input, target) {
-            const iN = normalizePinyin(input); const tN = normalizePinyin(target);
-            if (!iN.tone) return iN.raw === tN.raw;
-            return iN.raw === tN.raw && iN.tone === tN.tone;
-        }
+    // Chuẩn hóa cả dữ liệu người dùng nhập và dữ liệu gốc từ Google Sheets
+    // để đảm bảo cả hai đều ở cùng một định dạng pinyin có dấu, không khoảng trắng.
+    let cleanInput = normalizePinyin(input);
+    let cleanTarget = normalizePinyin(target);
+    
+    return cleanInput === cleanTarget;
+}
 
         function initVoices() {
             const select = document.getElementById('voice-select');
