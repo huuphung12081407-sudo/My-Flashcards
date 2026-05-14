@@ -6,30 +6,56 @@
     <title>Từ vựng New</title>
     
     <style>
-        :root { 
-            --kaiti-font: "KaiTi", "STKaiti", "DFKai-SB", "楷体", "楷体_GB2312", serif;
-            --primary: #e63946; --secondary: #457b9d; --bg: #f8f9fa; --success: #2a9d8f; 
-            --dark: #000000; --orange: #f4a261; --gray: #6c757d; 
-        }
+    :root { 
+        --kaiti-font: "KaiTi", "STKaiti", "DFKai-SB", "楷体", "楷体_GB2312", serif;
+        --primary: #e63946; --secondary: #457b9d; --bg: #f8f9fa; --success: #2a9d8f; 
+        --dark: #000000; --orange: #f4a261; --gray: #6c757d; 
+    }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        html, body { 
-            overscroll-behavior-y: none !important; 
-            position: fixed; width: 100%; height: 100%; overflow: hidden;
-            margin: 0; padding: 0; background: #333;
-        }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html, body { 
+        overscroll-behavior-y: none !important; 
+        /* Xử lý triệt để việc tràn màn hình */
+        width: 100%; 
+        height: 100dvh; 
+        margin: 0; 
+        padding: 0; 
+        background: #333;
+        overflow: hidden;
+    }
 
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            display: flex; justify-content: center; user-select: none;
-        }
+    body { 
+        font-family: -apple-system, system-ui, sans-serif; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; /* Căn giữa app */
+        user-select: none;
+    }
 
-        .app-container {
-            width: 100%; max-width: 450px; height: 100vh; background: var(--bg);
-            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
-            display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative;
-        }
+    .app-container {
+        width: 100%; 
+        max-width: 450px; 
+        /* Sử dụng dvh để không bị đè bởi thanh địa chỉ trình duyệt */
+        height: 100dvh; 
+        background: var(--bg);
+        /* Padding an toàn cho iPhone (tai thỏ và vạch dưới) */
+        padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
+        display: flex; 
+        flex-direction: column; 
+        box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Đảm bảo phần nội dung chính co giãn linh hoạt */
+    #standard-area { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        min-height: 0; /* Quan trọng để flex child không bị tràn */
+        overflow: hidden; 
+    }
 
         #hanzii-modal {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
