@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Từ Vựng New</title>
+    <title>Từ vựng New</title>
     
     <style>
         :root { 
@@ -22,12 +22,12 @@
 
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; user-select: none;
+            display: flex; justify-content: center; user-select: none;
         }
 
         .app-container {
-            width: 100%; max-width: 400px; height: 100vh; background: var(--bg);
-            padding: env(safe-area-inset-top) 15px 15px 15px;
+            width: 100%; max-width: 450px; height: 100vh; background: var(--bg);
+            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
             display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative;
         }
 
@@ -39,51 +39,49 @@
         #hanzii-frame-container { flex: 1; overflow: hidden; }
         #hanzii-iframe { width: 100%; height: 100%; border: none; }
 
-        #standard-area, #game-area { width: 100%; display: flex; flex-direction: column; }
+        #standard-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        #game-area { flex: 1; display: none; background: #0b0b0b; border-radius: 20px; overflow: hidden; position: relative; border: 4px solid #333; margin-bottom: 10px; }
         
-        .tab-menu { display: flex; width: 100%; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 8px 0; }
+        .tab-menu { display: flex; width: 100%; background: #e9ecef; border-radius: 12px; padding: 4px; margin: 8px 0; flex-shrink: 0; }
         .tab-menu button { flex: 1; border: none; padding: 10px 2px; border-radius: 8px; cursor: pointer; background: transparent; font-weight: 600; color: var(--gray); font-size: 11px; }
         .tab-menu button.active { background: white; color: var(--dark); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-        .stats-container { width: 100%; background: white; padding: 12px; border-radius: 18px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; }
-        .btn-reset { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0.3; }
-        .progress-wrapper { height: 7px; background: #eee; border-radius: 4px; margin: 10px 0; overflow: hidden; display: flex; }
+        .stats-container { width: 100%; background: white; padding: 10px; border-radius: 18px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: relative; flex-shrink: 0; }
+        .btn-reset { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0.3; }
+        .progress-wrapper { height: 6px; background: #eee; border-radius: 4px; margin: 8px 0; overflow: hidden; display: flex; }
         .progress-bar { height: 100%; transition: width 0.6s ease; }
         .pb-mastered { background: var(--success); }
         .pb-learning { background: var(--orange); }
         .pb-new { background: #dee2e6; }
         
-        .container { width: 100%; height: 380px; perspective: 1000px; margin-bottom: 10px; }
+        .container { width: 100%; flex: 1; perspective: 1000px; margin-bottom: 10px; min-height: 0; }
         .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .flashcard.flipped { transform: rotateY(180deg); }
         .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; border-radius: 25px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 15px; border: 1px solid rgba(0,0,0,0.03); overflow-y: auto; }
-        .card-back { transform: rotateY(180deg); border-top: 6px solid var(--secondary); justify-content: flex-start; z-index: 2; padding-top: 30px; }
+        .card-back { transform: rotateY(180deg); border-top: 6px solid var(--secondary); justify-content: flex-start; z-index: 2; padding-top: 20px; }
 
-        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 85px; text-align: center; }
-        .hanzi-char { font-family: var(--kaiti-font); font-size: 65px; cursor: pointer; color: #000; padding: 0 2px; }
+        #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 70px; text-align: center; }
+        .hanzi-char { font-family: var(--kaiti-font); font-size: 60px; cursor: pointer; color: #000; padding: 0 2px; }
         .hanzi-char.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
 
-        .grid-container { width: 180px; height: 180px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; }
+        .grid-container { width: 160px; height: 160px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
         .grid-line-v, .grid-line-h { position: absolute; background: #f0f0f0; z-index: 1; }
         .grid-line-v { left: 50%; top: 0; width: 1px; height: 100%; }
         .grid-line-h { top: 50%; left: 0; width: 100%; height: 1px; }
         #stroke-target { position: relative; z-index: 2; width: 100%; height: 100%; }
 
-        /* QUIZ UI */
-        .quiz-container { width: 100%; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .quiz-container { width: 100%; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
         .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
         .quiz-btn { padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: bold; cursor: pointer; }
-        .quiz-input { width: 90%; padding: 12px; border-radius: 12px; border: 2px solid var(--secondary); text-align: center; font-size: 18px; outline: none; }
+        .quiz-input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--secondary); text-align: center; font-size: 18px; outline: none; }
 
-        /* TTS SETTINGS */
-        .tts-settings { width: 90%; background: #f8f9fa; padding: 10px; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 8px; }
-        .tts-settings select, .tts-settings input { width: 100%; font-size: 12px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        .tts-settings { width: 100%; background: #f8f9fa; padding: 8px; border-radius: 12px; margin-top: 5px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+        .tts-settings select { width: 100%; font-size: 11px; padding: 4px; border-radius: 5px; }
         .tts-label { font-size: 10px; font-weight: bold; color: var(--gray); display: flex; justify-content: space-between; }
 
-        .btn-group { display: flex; gap: 8px; margin-top: 5px; width: 100%; }
+        .btn-group { display: flex; gap: 8px; margin-top: 5px; width: 100%; flex-shrink: 0; }
         button.action { flex: 1; padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
 
-        #game-area { height: 550px; display: none; background: #0b0b0b; border-radius: 30px; overflow: hidden; position: relative; border: 4px solid #333; }
         #game-current-hanzi { position: absolute; top: 90px; width: 100%; text-align: center; color: var(--primary); font-size: 80px; font-family: var(--kaiti-font); z-index: 5; pointer-events: none; }
         #target-container { width: 100%; height: 100%; position: relative; }
         
@@ -99,12 +97,9 @@
         #blind-mode-btn.active { background: #ff4757; color: white; border-color: #ff4757; }
 
         #game-start-btn { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); padding: 12px 40px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; z-index: 20; }
-        .listening { animation: pulse 0.8s infinite; border: 2px solid white !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
-        
         .btn-lookup { 
-            margin-top: 10px; padding:10px 20px; background:#00b4d8; color:white; border:none; 
-            border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer; 
+            margin-top: 10px; padding:10px; background:#00b4d8; color:white; border:none; 
+            border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer; width: 100%;
         }
     </style>
 </head>
@@ -126,8 +121,8 @@
         <div class="tab-menu">
             <button id="tab-new" class="active" onclick="changeTab('new')">MỚI</button>
             <button id="tab-learning" onclick="changeTab('learning')">ĐANG HỌC</button>
-            <button id="tab-mastered" onclick="changeTab('mastered')">ĐẢ THUỘC</button>
-            <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST GAME</button>
+            <button id="tab-mastered" onclick="changeTab('mastered')">ĐÃ THUỘC</button>
+            <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST</button>
         </div>
 
         <div class="stats-container" id="stats-box">
@@ -151,7 +146,7 @@
                         <div id="mastery-count" style="font-size: 12px; margin-bottom: 2px;"></div>
                         <div id="hanzi-wrapper"></div>
                         
-                        <div id="interactive-content" style="width: 100%;">
+                        <div id="interactive-content" style="width: 100%; flex:1; display:flex; flex-direction:column; justify-content:center;">
                             <div id="grid-box" class="grid-container">
                                 <div class="grid-line-v"></div><div class="grid-line-h"></div>
                                 <div id="stroke-target"></div>
@@ -159,17 +154,17 @@
                             <div id="quiz-box"></div>
                         </div>
 
-                        <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0;"></div>
-                        <button class="action" style="background:var(--secondary); width: auto; padding: 8px 20px; border-radius: 10px;" onclick="flipCard()">ĐÁP ÁN</button>
+                        <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0; flex-shrink:0;"></div>
+                        <button class="action" style="background:var(--secondary); width: auto; padding: 8px 25px; border-radius: 12px; flex-shrink:0;" onclick="flipCard()">ĐÁP ÁN</button>
                     </div>
                     
                     <div class="card-face card-back" onclick="flipCard()">
-                        <div id="back-hanzi" style="font-size:65px; color:var(--primary); font-family:var(--kaiti-font)"></div>
+                        <div id="back-hanzi" style="font-size:60px; color:var(--primary); font-family:var(--kaiti-font)"></div>
                         <p id="back-pinyin" style="font-size:20px; color:var(--secondary); margin:5px 0"></p>
                         <p id="back-meaning" style="font-size:18px; font-weight:bold; text-align: center;"></p>
                         
-                        <div id="example-box" style="width:90%; border-top:1px solid #ddd; margin-top:10px; padding-top:10px; display:none; position:relative;" onclick="event.stopPropagation()">
-                            <p id="back-example" style="font-size:14px; color:#555; font-style:italic; margin:0; padding-right:35px;"></p>
+                        <div id="example-box" style="width:100%; border-top:1px solid #ddd; margin-top:10px; padding-top:10px; display:none; position:relative;" onclick="event.stopPropagation()">
+                            <p id="back-example" style="font-size:13px; color:#555; font-style:italic; margin:0; padding-right:35px;"></p>
                             <button onclick="speakExample(event)" style="position:absolute; right:0; top:10px; border:none; background:var(--secondary); color:white; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:12px;">🔊</button>
                         </div>
 
@@ -179,10 +174,10 @@
                             <div class="tts-label"><span>GIỌNG ĐỌC:</span></div>
                             <select id="voice-select"></select>
                             <div class="tts-label"><span>TỐC ĐỘ:</span> <span id="speed-val">1.0</span></div>
-                            <input range id="speed-range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateSpeedVal(this.value)">
+                            <input type="range" id="speed-range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateSpeedVal(this.value)" style="width:100%">
                         </div>
 
-                        <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:10px; border-radius: 10px;" onclick="event.stopPropagation(); flipCard()">Quay lại</button>
+                        <button class="action" style="background:var(--gray); flex:none; padding:8px 25px; margin-top:10px; border-radius: 12px;" onclick="event.stopPropagation(); flipCard()">Quay lại</button>
                     </div>
                 </div>
             </div>
@@ -230,8 +225,7 @@
         let displayList = [], currentIndex = 0, currentTab = 'new';
         let gameScore = 0, gameHearts = 3, gameActive = false, currentCorrectWord = null;
         let targets = [], spawnTimer = null, moveInterval = null, speedMultiplier = 1.9;
-        let writerInstance = null, isBlindMode = false;
-        let voices = [];
+        let writerInstance = null, voices = [], isBlindMode = false;
 
         async function init() {
             updateOnlineStatus();
@@ -252,17 +246,33 @@
             } catch (e) { console.log("Offline mode."); render(); }
         }
 
+        function normalizePinyin(str) {
+            if (!str) return "";
+            let s = str.toLowerCase().replace(/v/g, 'ü').replace(/\s+/g, '');
+            let tone = s.match(/[1-4]/);
+            let charOnly = s.replace(/[1-4]/g, '');
+            const map = { 'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a', 'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e', 'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i', 'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o', 'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u', 'ü': 'u', 'ǘ': 'u', 'ǚ': 'u', 'ǜ': 'u', 'ǖ': 'u' };
+            let deAccented = "";
+            for (let char of charOnly) deAccented += map[char] || char;
+            return { raw: deAccented, tone: tone ? tone[0] : null };
+        }
+
+        function checkPinyinMatch(input, target) {
+            const iN = normalizePinyin(input); const tN = normalizePinyin(target);
+            if (!iN.tone) return iN.raw === tN.raw;
+            return iN.raw === tN.raw && iN.tone === tN.tone;
+        }
+
         function initVoices() {
             const select = document.getElementById('voice-select');
             const loadVoices = () => {
                 voices = window.speechSynthesis.getVoices();
-                const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN') || v.lang.includes('TW'));
-                select.innerHTML = zhVoices.length > 0 ? '' : '<option>No Chinese voice</option>';
+                const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN'));
+                select.innerHTML = '';
                 zhVoices.forEach(v => {
                     const opt = document.createElement('option');
-                    opt.value = v.name;
-                    opt.innerText = v.name.replace('Microsoft', '').replace('Google', '').trim();
-                    if (v.name.includes('Xiaoxiao') || v.name.includes('Chinese')) opt.selected = true;
+                    opt.value = v.name; opt.innerText = v.name.replace('Microsoft', '').trim();
+                    if (v.name.includes('Xiaoxiao')) opt.selected = true;
                     select.appendChild(opt);
                 });
             };
@@ -273,13 +283,10 @@
         function updateSpeedVal(v) { document.getElementById('speed-val').innerText = parseFloat(v).toFixed(1); }
 
         function updateOnlineStatus() {
-            const statusEl = document.getElementById('status');
-            statusEl.innerText = (navigator.onLine ? "Đang trực tuyến: " : "Ngoại tuyến: ") + currentSheetName;
-            statusEl.style.color = navigator.onLine ? "#2a9d8f" : "#adb5bd";
+            const s = document.getElementById('status');
+            s.innerText = (navigator.onLine ? "Đang trực tuyến: " : "Ngoại tuyến: ") + currentSheetName;
+            s.style.color = navigator.onLine ? "#2a9d8f" : "#adb5bd";
         }
-
-        window.addEventListener('online', () => { updateOnlineStatus(); init(); });
-        window.addEventListener('offline', updateOnlineStatus);
 
         function changeTab(t) {
             currentTab = t; stopGame();
@@ -326,17 +333,13 @@
             const grid = document.getElementById('grid-box');
             const quizBox = document.getElementById('quiz-box');
             const msg = document.getElementById('quiz-msg');
-            
             msg.innerText = ""; wrap.innerHTML = ""; quizBox.innerHTML = "";
             document.getElementById('card').classList.remove('flipped');
             grid.style.display = "block";
-
             if (!w) { wrap.innerHTML = "Trống"; grid.style.display = "none"; return; }
-            
             const db = allProgress[currentSheetName] || {};
             const count = db[w.hanzi]?.count || 0;
             document.getElementById('mastery-count').innerText = count > 0 ? "⭐".repeat(count) : "🆕";
-
             if (currentTab === 'learning') {
                 grid.style.display = "none";
                 if (count === 1) { 
@@ -361,37 +364,22 @@
                 });
                 drawChar(w.hanzi[0]);
             }
-
             document.getElementById('back-hanzi').innerText = w.hanzi;
             document.getElementById('back-pinyin').innerText = w.pinyin;
             document.getElementById('back-meaning').innerText = w.meaning;
             const exBox = document.getElementById('example-box');
             const exTxt = document.getElementById('back-example');
-            if (w.example) {
-                exBox.style.display = "block";
-                exTxt.innerText = w.example;
-            } else {
-                exBox.style.display = "none";
-            }
+            if (w.example) { exBox.style.display = "block"; exTxt.innerText = w.example; } else { exBox.style.display = "none"; }
         }
 
-        function createMultipleChoice(correctWord) {
+        function createMultipleChoice(cW) {
             const box = document.getElementById('quiz-box');
-            let choices = originalWords.filter(w => w.hanzi !== correctWord.hanzi).sort(() => 0.5 - Math.random()).slice(0, 3).map(w => w.meaning);
-            choices.push(correctWord.meaning);
-            choices.sort(() => 0.5 - Math.random());
-            const container = document.createElement('div');
-            container.className = 'quiz-options';
+            let choices = originalWords.filter(w => w.hanzi !== cW.hanzi).sort(() => 0.5 - Math.random()).slice(0, 3).map(w => w.meaning);
+            choices.push(cW.meaning); choices.sort(() => 0.5 - Math.random());
+            const container = document.createElement('div'); container.className = 'quiz-options';
             choices.forEach(choice => {
                 const btn = document.createElement('button'); btn.className = 'quiz-btn'; btn.innerText = choice;
-                btn.onclick = () => { 
-                    if (choice === correctWord.meaning) handleMark(true); 
-                    else { 
-                        btn.style.background = "#fee"; 
-                        document.getElementById('quiz-msg').innerText = "❌ Thử lại nhé (Giảm 1⭐)"; 
-                        handleMark(false);
-                    } 
-                };
+                btn.onclick = () => { if (choice === cW.meaning) handleMark(true); else { btn.style.background = "#fee"; handleMark(false); } };
                 container.appendChild(btn);
             });
             box.appendChild(container);
@@ -401,47 +389,28 @@
             const box = document.getElementById('quiz-box');
             const container = document.createElement('div'); container.className = 'quiz-container';
             const input = document.createElement('input'); input.className = 'quiz-input';
-            input.placeholder = type === 'pinyin' ? "Nhập phiên âm..." : "Nhập chữ Hán...";
+            input.placeholder = type === 'pinyin' ? "Pinyin (VD: xia4ng, nv3)..." : "Nhập chữ Hán...";
             const btn = document.createElement('button'); btn.className = 'action'; btn.style.background = 'var(--secondary)'; btn.innerText = "KIỂM TRA";
-            
             const check = () => {
-                let val = input.value.trim().toLowerCase();
-                let target = type === 'pinyin' ? word.pinyin.toLowerCase() : word.hanzi;
-                
-                // Logic cập nhật: Chấp nhận có dấu cách hoặc không nếu là Pinyin
-                if (type === 'pinyin') {
-                    val = val.replace(/\s+/g, '');
-                    target = target.replace(/\s+/g, '');
-                }
-
-                if (val === target) handleMark(true);
-                else { 
-                    document.getElementById('quiz-msg').innerText = `❌ Sai rồi! (Giảm 1⭐)`; 
-                    input.style.borderColor = "var(--primary)";
-                    handleMark(false);
-                }
+                let val = input.value.trim();
+                let isCorrect = (type === 'pinyin') ? checkPinyinMatch(val, word.pinyin) : (val === word.hanzi);
+                if (isCorrect) handleMark(true);
+                else { document.getElementById('quiz-msg').innerText = `❌ Sai rồi! Thử lại nhé.`; input.style.borderColor = "var(--primary)"; handleMark(false); }
             };
-            
             btn.onclick = check; input.onkeypress = (e) => { if(e.key === 'Enter') check(); };
             container.appendChild(input); container.appendChild(btn); box.appendChild(container); input.focus();
         }
 
         function drawChar(c) {
             document.getElementById('stroke-target').innerHTML = "";
-            writerInstance = HanziWriter.create('stroke-target', c, { width: 180, height: 180, padding: 15, strokeColor: '#e63946', showOutline: true, showCharacter: false });
+            writerInstance = HanziWriter.create('stroke-target', c, { width: 160, height: 160, padding: 10, strokeColor: '#e63946', showOutline: true, showCharacter: false });
             writerInstance.animateCharacter();
         }
 
-        function startQuizMode(fullHanzi, charIndex) {
-            const charToDraw = fullHanzi[charIndex];
-            document.getElementById('stroke-target').innerHTML = "";
-            writerInstance = HanziWriter.create('stroke-target', charToDraw, { width: 180, height: 180, padding: 15, showOutline: false, showCharacter: false, strokeColor: '#e63946', drawingColor: '#2a9d8f' });
-            writerInstance.quiz({
-                onComplete: () => { 
-                    if (charIndex < fullHanzi.length - 1) setTimeout(() => startQuizMode(fullHanzi, charIndex + 1), 500);
-                    else { document.getElementById('quiz-msg').innerText = "✅ Chính xác!"; speak(); }
-                }
-            });
+        function startQuizMode(fH, cI) {
+            const cTD = fH[cI]; document.getElementById('stroke-target').innerHTML = "";
+            writerInstance = HanziWriter.create('stroke-target', cTD, { width: 160, height: 160, padding: 10, showOutline: false, showCharacter: false, strokeColor: '#e63946', drawingColor: '#2a9d8f' });
+            writerInstance.quiz({ onComplete: () => { if (cI < fH.length - 1) setTimeout(() => startQuizMode(fH, cI + 1), 500); else { document.getElementById('quiz-msg').innerText = "✅ Rất tốt!"; speak(); } } });
         }
 
         function handleMark(ok) {
@@ -455,30 +424,42 @@
             setTimeout(() => render(), 800);
         }
 
-        /* --- GAME BLAST --- */
+        /* --- GAME BLAST LOGIC --- */
         function setSpeed(v) { speedMultiplier = v === 1 ? 0.6 : v === 2 ? 1.1 : 1.9; document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active')); document.getElementById('s' + v).classList.add('active'); }
-        function toggleBlindMode() { isBlindMode = !isBlindMode; document.getElementById('blind-mode-btn').classList.toggle('active'); document.getElementById('blind-mode-btn').innerText = isBlindMode ? "🙈" : "👁️"; if (gameActive) updateGameDisplay(); }
-        function updateGameDisplay() { document.getElementById('game-current-hanzi').innerText = isBlindMode ? "???" : (currentCorrectWord ? currentCorrectWord.hanzi : "?"); }
+        
+        function toggleBlindMode() { 
+            isBlindMode = !isBlindMode; 
+            document.getElementById('blind-mode-btn').classList.toggle('active'); 
+            document.getElementById('blind-mode-btn').innerText = isBlindMode ? "🙈" : "👁️"; 
+            updateGameDisplay();
+        }
+        
+        function updateGameDisplay() {
+            if (!gameActive) return;
+            document.getElementById('game-current-hanzi').innerText = isBlindMode ? "???" : (currentCorrectWord ? currentCorrectWord.hanzi : "?");
+        }
+
         function startGame() {
-            const gamePool = originalWords.filter(w => (allProgress[currentSheetName]?.[w.hanzi]?.count || 0) > 0);
-            if (gamePool.length < 2) return alert("Bạn cần có ít nhất 2 từ đã học để chơi!");
+            const gP = originalWords.filter(w => (allProgress[currentSheetName]?.[w.hanzi]?.count || 0) > 0);
+            if (gP.length < 2) return alert("Cần ít nhất 2 từ đã học!");
             document.getElementById('game-start-btn').style.display = 'none';
-            gameScore = 0; gameHearts = 3; gameActive = true; updateGameUI(); spawnNewWord(gamePool);
-            moveInterval = setInterval(updateTargets, 20); spawnTimer = setInterval(() => spawnTarget(gamePool), 2400); 
+            gameScore = 0; gameHearts = 3; gameActive = true; updateGameUI(); spawnNewWord(gP);
+            moveInterval = setInterval(updateTargets, 20); spawnTimer = setInterval(() => spawnTarget(gP), 2400); 
         }
-        function spawnNewWord(pool) {
+        function spawnNewWord(p) {
             targets.forEach(t => t.isLegacy = true);
-            currentCorrectWord = pool[Math.floor(Math.random() * pool.length)];
-            updateGameDisplay(); speakGame(currentCorrectWord.hanzi); spawnTarget(pool, currentCorrectWord.meaning, true);
+            currentCorrectWord = p[Math.floor(Math.random() * p.length)];
+            updateGameDisplay();
+            speakGame(currentCorrectWord.hanzi); spawnTarget(p, currentCorrectWord.meaning, true);
         }
-        function spawnTarget(pool, txt = null, isCorrect = false) {
+        function spawnTarget(p, txt = null, iC = false) {
             if (!gameActive) return;
             const node = document.createElement('div');
-            let word = isCorrect ? currentCorrectWord : pool[Math.floor(Math.random() * pool.length)];
+            let word = iC ? currentCorrectWord : p[Math.floor(Math.random() * p.length)];
             node.innerText = txt || word.meaning;
-            node.style.cssText = `position:absolute; padding:10px 18px; background:white; border-radius:25px; font-weight:bold; font-size:13px; top:550px; left:${Math.random()*250}px; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:100;`;
+            node.style.cssText = `position:absolute; padding:10px 18px; background:white; border-radius:25px; font-weight:bold; font-size:13px; top:550px; left:${Math.random()*220}px; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer; z-index:100;`;
             node.onclick = () => {
-                if (word.hanzi === currentCorrectWord.hanzi) { gameScore += 10; node.remove(); spawnNewWord(pool); updateGameUI(); }
+                if (word.hanzi === currentCorrectWord.hanzi) { gameScore += 10; node.remove(); spawnNewWord(p); updateGameUI(); }
                 else { gameHearts--; updateGameUI(); if(gameHearts <= 0) { stopGame(); alert("Game Over!"); } node.style.background="red"; }
             };
             document.getElementById('target-container').appendChild(node);
@@ -487,53 +468,37 @@
         function updateTargets() {
             targets.forEach((t, i) => {
                 t.y -= t.speed; t.el.style.top = t.y + 'px';
-                if (t.y < -50) { 
-                    if (t.hanzi === currentCorrectWord.hanzi && (!t.isLegacy || t.y > 180)) { gameHearts--; updateGameUI(); if(gameHearts <= 0) stopGame(); }
-                    t.el.remove(); targets.splice(i, 1); 
-                }
+                if (t.y < -50) { if (t.hanzi === currentCorrectWord.hanzi && (!t.isLegacy || t.y > 180)) { gameHearts--; updateGameUI(); if(gameHearts <= 0) stopGame(); } t.el.remove(); targets.splice(i, 1); }
             });
         }
-        function stopGame() { gameActive = false; clearInterval(moveInterval); clearInterval(spawnTimer); document.getElementById('game-start-btn').style.display = 'block'; document.getElementById('target-container').innerHTML = ''; targets = []; }
+        function stopGame() { gameActive = false; clearInterval(moveInterval); clearInterval(spawnTimer); document.getElementById('game-start-btn').style.display = 'block'; document.getElementById('target-container').innerHTML = ''; targets = []; document.getElementById('game-current-hanzi').innerText = "?"; }
         function updateGameUI() { document.getElementById('game-score').innerText = `Điểm: ${gameScore}`; document.getElementById('game-hearts').innerText = "❤️".repeat(gameHearts) + "🖤".repeat(3 - gameHearts); }
 
-        /* --- TTS UTILS --- */
         function getTTSParams() {
-            const voiceName = document.getElementById('voice-select').value;
+            const vN = document.getElementById('voice-select').value;
             const rate = parseFloat(document.getElementById('speed-range').value);
-            const voice = voices.find(v => v.name === voiceName);
+            const voice = voices.find(v => v.name === vN);
             return { voice, rate };
         }
-
         function speak() {
-            window.speechSynthesis.cancel();
-            const { voice, rate } = getTTSParams();
+            window.speechSynthesis.cancel(); const { voice, rate } = getTTSParams();
             const msg = new SpeechSynthesisUtterance(displayList[currentIndex].hanzi);
-            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
-            window.speechSynthesis.speak(msg);
+            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg);
         }
-
         function speakExample(e) {
-            if(e) e.stopPropagation();
-            window.speechSynthesis.cancel();
-            const { voice, rate } = getTTSParams();
+            if(e) e.stopPropagation(); window.speechSynthesis.cancel(); const { voice, rate } = getTTSParams();
             const raw = displayList[currentIndex].example;
-            let chinesePart = raw.split(/[-—(（\[【:|]/)[0];
-            const chineseOnlyMatch = chinesePart.match(/[\u4e00-\u9fa5，。！？；：“”‘’（）]+/g);
-            const chineseOnly = chineseOnlyMatch ? chineseOnlyMatch.join('') : chinesePart.trim();
-            const msg = new SpeechSynthesisUtterance(chineseOnly);
-            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
-            window.speechSynthesis.speak(msg);
+            const chineseOnly = raw.match(/[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/g);
+            if (chineseOnly) {
+                const msg = new SpeechSynthesisUtterance(chineseOnly.join(""));
+                msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg);
+            }
         }
-
         function speakGame(h) {
-            window.speechSynthesis.cancel();
-            const { voice, rate } = getTTSParams();
+            window.speechSynthesis.cancel(); const { voice, rate } = getTTSParams();
             const msg = new SpeechSynthesisUtterance(h);
-            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN';
-            window.speechSynthesis.speak(msg);
+            msg.voice = voice; msg.rate = rate; msg.lang = 'zh-CN'; window.speechSynthesis.speak(msg);
         }
-
-        /* --- OTHER UTILS --- */
         function openHanzii(e) { if(e) e.stopPropagation(); const word = displayList[currentIndex].hanzi; if (word) { document.getElementById('hanzii-iframe').src = "https://hanzii.net/search/word/" + encodeURIComponent(word) + "?hl=vi-VN"; document.getElementById('hanzii-modal').style.display = "flex"; } }
         function closeHanzii() { document.getElementById('hanzii-modal').style.display = "none"; document.getElementById('hanzii-iframe').src = "about:blank"; }
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); if(document.getElementById('card').classList.contains('flipped')) speak(); }
@@ -542,7 +507,7 @@
         function resetProgress() { if(confirm("Xóa tiến độ?")) { delete allProgress[currentSheetName]; localStorage.setItem('hsk_multi_sheet_db', JSON.stringify(allProgress)); render(); } }
         
         function startSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window)) return alert("Trình duyệt không hỗ trợ.");
+            if (!('webkitSpeechRecognition' in window)) return alert("Không hỗ trợ.");
             const rec = new webkitSpeechRecognition(); rec.lang = 'zh-CN';
             const btn = document.getElementById('mic-btn');
             rec.onstart = () => { btn.classList.add('listening'); document.getElementById('quiz-msg').innerText = "Đang nghe..."; };
