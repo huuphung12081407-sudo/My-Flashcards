@@ -168,6 +168,24 @@
         cursor: pointer; box-shadow: inset 0 0 6px rgba(255,255,255,0.05);
     }
     .clash-card:active { background: var(--royal-blue); border-color: white; transform: scale(0.97); }
+	/* Chỉ áp dụng trên điện thoại để ép toàn bộ giao diện vừa khít màn hình, không cần cuộn */
+@media screen and (max-width: 768px) {
+    .grid-container {
+        width: 135px !important;
+        height: 135px !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Đảm bảo ô nhập liệu hoặc text quiz luôn có không gian hiển thị rộng rãi */
+    #quiz-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 50px;
+    }
+}
     </style>
 </head>
 <body>
@@ -215,7 +233,7 @@
                         <div id="mastery-count" style="font-size: 12px; margin-bottom: 2px;"></div>
                         <div id="hanzi-wrapper"></div>
                         
-                        <div id="interactive-content" style="width: 100%; flex:1; display:flex; flex-direction:column; justify-content:center;">
+                        <div id="interactive-content" style="width: 100%; flex:1; display:grid; grid-template-rows: auto 1fr; align-items: center; justify-content:center; gap: 8px; min-height: 0;">
                             <div id="grid-box" class="grid-container">
                                 <div class="grid-line-v"></div><div class="grid-line-h"></div>
                                 <div id="stroke-target"></div>
