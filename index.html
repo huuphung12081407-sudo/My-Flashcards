@@ -524,12 +524,12 @@
             
             const exBox = document.getElementById('example-box');
             const exTxt = document.getElementById('back-example');
-            if (w.example) { 
-                exBox.style.display = "block"; 
-                let cleanHz = cleanChineseSentence(w.example);
-                let cleanVn = extractVietnameseMeaning(w.example);
-                exTxt.innerHTML = `<b>${cleanHz}</b><br><span style="color:var(--gray); font-size:12px;">${cleanVn}</span>`;
-            } else { exBox.style.display = "none"; }
+            if (w.example && w.example.trim() !== "") { 
+                exBox.style.display = "block";
+                exTxt.innerText = w.example;
+            } else {
+                exBox.style.display = "none";
+            }
         }
 
         function setupDicQuiz(word) {
