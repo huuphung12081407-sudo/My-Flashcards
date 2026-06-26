@@ -84,7 +84,10 @@
 
     #hanzi-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; min-height: 70px; text-align: center; }
     .hanzi-char { font-family: var(--kaiti-font); font-size: 60px; cursor: pointer; color: #000; padding: 0 2px; }
-    .hanzi-char.active { border-bottom: 4px solid var(--primary); color: var(--primary); }
+    .hanzi-char.active { 
+    border-bottom: 4px solid #000000; /* Đổi từ var(--primary) sang màu đen */
+    color: var(--primary); 
+}
 
     .grid-container { width: 160px; height: 160px; margin: 5px auto; position: relative; background: #fff; border: 2px solid #ddd; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
     .grid-line-v, .grid-line-h { position: absolute; background: #f0f0f0; z-index: 1; }
@@ -169,13 +172,48 @@
     }
     .clash-card:active { background: var(--royal-blue); border-color: white; transform: scale(0.97); }
 	/* Chỉ áp dụng trên điện thoại để ép toàn bộ giao diện vừa khít màn hình, không cần cuộn */
+#btn-show-answer {
+    display: inline-block !important;
+    width: 130px !important;           
+    height: 40px !important;           
+    line-height: 24px !important;      
+    margin: 20px auto 10px auto !important; 
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    flex: none !important;             
+    color: #ffffff !important;         /* Dòng này giúp chữ chuyển sang màu trắng */
+}
+/* Chỉ áp dụng trên điện thoại để ép toàn bộ giao diện vừa khít màn hình, không cần cuộn */
 @media screen and (max-width: 768px) {
+    /* Thu nhỏ chữ hán mẫu ở tab MỚI */
+    .hanzi-char {
+        font-size: 12vw !important; /* Co giãn linh hoạt theo chiều rộng màn hình */
+        max-size: 55px;
+    }
+
+    /* Thu nhỏ chữ hán hiển thị ở tab ĐANG HỌC (Vòng 1 & 2) */
+    #hanzi-wrapper div[style*="font-size:45px"] {
+        font-size: 10vw !important;
+    }
+
+    /* Thu nhỏ ô lưới tập viết Hanzi Writer */
     .grid-container {
-        width: 135px !important;
-        height: 135px !important;
-        margin: 0 auto !important;
+        width: 120px !important;
+        height: 120px !important;
+        margin: 5px auto !important;
     }
     
+    #stroke-target svg {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+    /* Tối ưu vùng hiển thị nội dung tương tác để không đẩy lệch ô */
+    #interactive-content {
+        gap: 4px !important;
+    }
+
     /* Đảm bảo ô nhập liệu hoặc text quiz luôn có không gian hiển thị rộng rãi */
     #quiz-box {
         width: 100%;
@@ -183,8 +221,38 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-height: 50px;
+        min-height: 45px;
     }
+
+    .quiz-btn {
+        padding: 8px 4px !important;
+        font-size: 11px !important;
+    }
+
+    .quiz-input {
+        padding: 8px !important;
+        font-size: 14px !important;
+    }
+    
+    /* Thu nhỏ thông báo kết quả Quiz để tiết kiệm không gian đứng */
+    #quiz-msg {
+        height: 25px !important;
+        font-size: 11px !important;
+        margin: 2px 0 !important;
+    }
+	/* Thu gọn nút ĐÁP ÁN trên điện thoại */
+    /* Áp dụng chung cho cả máy tính và điện thoại */
+#btn-show-answer {
+    display: inline-block !important; /* Đổi từ block sang inline-block để ép theo width */
+    width: 130px !important;           /* Ép nút thu hẹp chiều ngang */
+    height: 40px !important;           /* Ép cứng chiều cao, không cho giãn dọc */
+    line-height: 24px !important;      /* Căn giữa chữ theo chiều dọc nút */
+    margin: 20px auto 10px auto !important; /* Tăng khoảng cách phía trên (20px) để đẩy nút tách rời ô chữ mẫu */
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    flex: none !important;             /* Ngăn Flexbox của thẻ cha kéo giãn nút */
+}
 }
     </style>
 </head>
@@ -206,7 +274,7 @@
         <div class="tab-menu">
             <button id="tab-new" class="active" onclick="changeTab('new')">MỚI</button>
             <button id="tab-learning" onclick="changeTab('learning')">ĐANG HỌC</button>
-            <button id="tab-mastered" onclick="changeTab('mastered')">ĐA THUỘC</button>
+            <button id="tab-mastered" onclick="changeTab('mastered')">ĐÃ THUỘC</button>
             <button id="tab-dic" onclick="changeTab('dic')" style="background: #edf2f4; color: var(--purple);">📖 DIC</button>
             <button id="tab-review" onclick="changeTab('review')" style="background: #fee; color: var(--primary);">🚀 BLAST</button>
             <button id="tab-clash" onclick="changeTab('clash')" style="background: #fff0f6; color: #ff4757;">⚔️ CLASH</button>
@@ -242,7 +310,7 @@
                         </div>
 
                         <div id="quiz-msg" style="height:35px; font-size:12px; font-weight:bold; text-align:center; margin: 5px 0; flex-shrink:0;"></div>
-                        <button id="btn-show-answer" class="action" style="background:var(--secondary); width: auto; padding: 8px 25px; border-radius: 12px; flex-shrink:0;" onclick="flipCard()">ĐÁP ÁN</button>
+                        <button id="btn-show-answer" style="background:var(--secondary);" onclick="flipCard()">ĐÁP ÁN</button>
                     </div>
                     
                     <div class="card-face card-back" onclick="flipCard()">
