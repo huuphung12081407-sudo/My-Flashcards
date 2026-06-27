@@ -250,6 +250,14 @@
     font-size: 13px !important;
     border-radius: 10px !important;
     flex: none !important;             /* Ngăn Flexbox của thẻ cha kéo giãn nút */
+/* Ép SVG của Hanzi Writer tự động co giãn theo kích thước khung bao ngoài */
+    #stroke-target svg {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        display: block !important;
+    }
 }
 }
     </style>
